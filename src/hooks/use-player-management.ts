@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Player } from "@/types/game";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,20 +24,18 @@ export const usePlayerManagement = (gameId: string, onPlayerUpdate: (updatedPlay
     }
 
     try {
-      console.log('Attempting to add player:', {
-        name: newPlayerName,
+      const playerData = {
+        name: newPlayerName.trim(),
         game_id: gameId,
         number: generateRandomNumber(),
-      });
+        status: 'alive' as const,
+      };
+
+      console.log('Attempting to add player:', playerData);
 
       const { data: newPlayer, error } = await supabase
         .from('players')
-        .insert([{
-          name: newPlayerName.trim(),
-          game_id: gameId,
-          number: generateRandomNumber(),
-          status: 'alive' as const,
-        }])
+        .insert([playerData])
         .select()
         .single();
 
