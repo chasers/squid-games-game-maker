@@ -1,13 +1,13 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Toggle } from "@/components/ui/toggle";
 import { Game, Player } from "@/types/game";
 import { toast } from "@/hooks/use-toast";
-import { UserPlus, Pencil } from "lucide-react";
+import { UserPlus, Pencil, Skull } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const GameManagement = () => {
@@ -19,6 +19,7 @@ const GameManagement = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [editName, setEditName] = useState("");
+  const [editStatus, setEditStatus] = useState<'alive' | 'eliminated'>('alive');
 
   useEffect(() => {
     const gamesData = localStorage.getItem('games');
@@ -95,7 +96,9 @@ const GameManagement = () => {
     setGame((prevGame) => {
       if (!prevGame) return null;
       const updatedPlayers = prevGame.players.map((p) =>
-        p.id === selectedPlayer.id ? { ...p, name: editName } : p
+        p.id === selectedPlayer.id 
+          ? { ...p, name: editName, status: editStatus }
+          : p
       );
       const updatedGame = {
         ...prevGame,
@@ -222,13 +225,23 @@ const GameManagement = () => {
           {game?.players.map((player) => (
             <Card
               key={player.id}
-              className="p-6 card-hover"
+              className={`p-6 card-hover ${
+                player.status === 'eliminated' ? 'opacity-75' : ''
+              }`}
             >
               <div className="space-y-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="text-xl font-semibold">{player.name}</h3>
-                    <p className="text-sm text-muted-foreground">
+                    <h3 className={`text-xl font-semibold ${
+                      player.status === 'eliminated' ? 'line-through' : ''
+                    }`}>
+                      {player.name}
+                    </h3>
+                    <p className={`text-sm ${
+                      player.status === 'eliminated' 
+                        ? 'text-red-500' 
+                        : 'text-green-500'
+                    }`}>
                       Status: {player.status}
                     </p>
                   </div>
@@ -238,6 +251,7 @@ const GameManagement = () => {
                     onClick={() => {
                       setSelectedPlayer(player);
                       setEditName(player.name);
+                      setEditStatus(player.status);
                       setIsEditOpen(true);
                     }}
                   >
@@ -249,7 +263,9 @@ const GameManagement = () => {
                     <img
                       src={player.photoUrl}
                       alt={player.name}
-                      className="w-20 h-20 rounded-full object-cover"
+                      className={`w-20 h-20 rounded-full object-cover ${
+                        player.status === 'eliminated' ? 'grayscale' : ''
+                      }`}
                     />
                   )}
                   <Input
@@ -281,6 +297,19 @@ const GameManagement = () => {
                 onChange={(e) => setEditName(e.target.value)}
                 className="input-focus"
               />
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Player Status:</span>
+                <Toggle
+                  pressed={editStatus === 'eliminated'}
+                  onPressedChange={(pressed) => {
+                    setEditStatus(pressed ? 'eliminated' : 'alive');
+                  }}
+                  className="data-[state=on]:bg-red-500"
+                >
+                  <Skull className="h-4 w-4 mr-2" />
+                  {editStatus === 'eliminated' ? 'Eliminated' : 'Alive'}
+                </Toggle>
+              </div>
               <Button
                 onClick={handleEditPlayer}
                 className="w-full bg-squid-pink hover:bg-squid-pink/90 button-hover"
