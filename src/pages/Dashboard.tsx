@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -38,7 +37,22 @@ const Dashboard = () => {
       if (error) throw error;
 
       if (gamesData) {
-        setGames(gamesData as Game[]);
+        const transformedGames: Game[] = gamesData.map(game => ({
+          id: game.id,
+          name: game.name,
+          createdAt: game.created_at,
+          ownerId: game.owner_id,
+          status: game.status as 'pending' | 'in-progress' | 'completed',
+          players: game.players.map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            status: p.status as 'alive' | 'eliminated',
+            gameId: p.game_id,
+            number: p.number,
+            photoUrl: p.photo_url
+          }))
+        }));
+        setGames(transformedGames);
       }
     } catch (error) {
       console.error('Error fetching games:', error);
@@ -82,13 +96,25 @@ const Dashboard = () => {
           name: newGameName,
           owner_id: session.user.id,
         }])
-        .select()
+        .select(`
+          *,
+          players (*)
+        `)
         .single();
 
       if (error) throw error;
 
       if (newGame) {
-        setGames((prevGames) => [...prevGames, { ...newGame, players: [] }]);
+        const transformedGame: Game = {
+          id: newGame.id,
+          name: newGame.name,
+          createdAt: newGame.created_at,
+          ownerId: newGame.owner_id,
+          status: newGame.status as 'pending' | 'in-progress' | 'completed',
+          players: []
+        };
+        
+        setGames((prevGames) => [...prevGames, transformedGame]);
         setNewGameName("");
         setIsOpen(false);
         toast({

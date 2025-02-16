@@ -1,11 +1,14 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Game, Player } from "@/types/game";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 
 export const useGameManagement = (gameId: string) => {
   const navigate = useNavigate();
+  const { session } = useAuth();
   const [game, setGame] = useState<Game | null>(null);
   const [newPlayerName, setNewPlayerName] = useState("");
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -15,29 +18,60 @@ export const useGameManagement = (gameId: string) => {
   const [editStatus, setEditStatus] = useState<'alive' | 'eliminated'>('alive');
   const [editNumber, setEditNumber] = useState<number>(0);
 
-  useEffect(() => {
-    const gamesData = localStorage.getItem('games');
-    if (gamesData) {
-      const games = JSON.parse(gamesData);
-      const currentGame = games.find((g: Game) => g.id === gameId);
-      if (currentGame) {
-        setGame(currentGame);
-      } else {
-        toast({
-          title: "Error",
-          description: "Game not found",
-          variant: "destructive",
-        });
-        navigate("/dashboard");
+  const fetchGame = async () => {
+    try {
+      const { data: gameData, error } = await supabase
+        .from('games')
+        .select(`
+          *,
+          players (*)
+        `)
+        .eq('id', gameId)
+        .single();
+
+      if (error) throw error;
+
+      if (gameData) {
+        // Transform the data to match our Game type
+        const transformedGame: Game = {
+          id: gameData.id,
+          name: gameData.name,
+          createdAt: gameData.created_at,
+          ownerId: gameData.owner_id,
+          status: gameData.status as 'pending' | 'in-progress' | 'completed',
+          players: gameData.players.map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            status: p.status as 'alive' | 'eliminated',
+            gameId: p.game_id,
+            number: p.number,
+            photoUrl: p.photo_url
+          }))
+        };
+        setGame(transformedGame);
       }
+    } catch (error) {
+      console.error('Error fetching game:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load game",
+        variant: "destructive",
+      });
+      navigate("/dashboard");
     }
-  }, [gameId, navigate]);
+  };
+
+  useEffect(() => {
+    if (session) {
+      fetchGame();
+    }
+  }, [gameId, session]);
 
   const generateRandomNumber = () => {
     return Math.floor(Math.random() * 455) + 1;
   };
 
-  const handleAddPlayer = () => {
+  const handleAddPlayer = async () => {
     if (!newPlayerName.trim()) {
       toast({
         title: "Error",
@@ -47,39 +81,50 @@ export const useGameManagement = (gameId: string) => {
       return;
     }
 
-    const newPlayer: Player = {
-      id: Date.now().toString(),
-      name: newPlayerName,
-      status: "alive",
-      gameId: gameId,
-      number: generateRandomNumber(),
-    };
+    try {
+      const { data: newPlayer, error } = await supabase
+        .from('players')
+        .insert([{
+          name: newPlayerName,
+          game_id: gameId,
+          number: generateRandomNumber(),
+        }])
+        .select()
+        .single();
 
-    setGame((prevGame) => {
-      if (!prevGame) return null;
-      const updatedGame = {
-        ...prevGame,
-        players: [...prevGame.players, newPlayer],
-      };
+      if (error) throw error;
 
-      const gamesData = localStorage.getItem('games');
-      if (gamesData) {
-        const games = JSON.parse(gamesData);
-        const updatedGames = games.map((g: Game) => 
-          g.id === gameId ? updatedGame : g
-        );
-        localStorage.setItem('games', JSON.stringify(updatedGames));
+      if (newPlayer) {
+        setGame((prevGame) => {
+          if (!prevGame) return null;
+          return {
+            ...prevGame,
+            players: [...prevGame.players, {
+              id: newPlayer.id,
+              name: newPlayer.name,
+              status: newPlayer.status as 'alive' | 'eliminated',
+              gameId: newPlayer.game_id,
+              number: newPlayer.number,
+              photoUrl: newPlayer.photo_url
+            }]
+          };
+        });
+
+        setNewPlayerName("");
+        setIsAddOpen(false);
+        toast({
+          title: "Success",
+          description: "Player added successfully",
+        });
       }
-
-      return updatedGame;
-    });
-
-    setNewPlayerName("");
-    setIsAddOpen(false);
-    toast({
-      title: "Success",
-      description: "Player added successfully",
-    });
+    } catch (error) {
+      console.error('Error adding player:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add player",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleEditPlayer = async () => {
@@ -101,35 +146,52 @@ export const useGameManagement = (gameId: string) => {
       return;
     }
 
-    setGame((prevGame) => {
-      if (!prevGame) return null;
-      const updatedPlayers = prevGame.players.map((p) =>
-        p.id === selectedPlayer.id 
-          ? { ...p, name: editName, status: editStatus, number: editNumber }
-          : p
-      );
-      const updatedGame = {
-        ...prevGame,
-        players: updatedPlayers,
-      };
+    try {
+      const { data: updatedPlayer, error } = await supabase
+        .from('players')
+        .update({
+          name: editName,
+          status: editStatus,
+          number: editNumber
+        })
+        .eq('id', selectedPlayer.id)
+        .select()
+        .single();
 
-      const gamesData = localStorage.getItem('games');
-      if (gamesData) {
-        const games = JSON.parse(gamesData);
-        const updatedGames = games.map((g: Game) => 
-          g.id === gameId ? updatedGame : g
-        );
-        localStorage.setItem('games', JSON.stringify(updatedGames));
+      if (error) throw error;
+
+      if (updatedPlayer) {
+        setGame((prevGame) => {
+          if (!prevGame) return null;
+          return {
+            ...prevGame,
+            players: prevGame.players.map((p) =>
+              p.id === selectedPlayer.id ? {
+                id: updatedPlayer.id,
+                name: updatedPlayer.name,
+                status: updatedPlayer.status as 'alive' | 'eliminated',
+                gameId: updatedPlayer.game_id,
+                number: updatedPlayer.number,
+                photoUrl: updatedPlayer.photo_url
+              } : p
+            )
+          };
+        });
+
+        setIsEditOpen(false);
+        toast({
+          title: "Success",
+          description: "Player updated successfully",
+        });
       }
-
-      return updatedGame;
-    });
-
-    setIsEditOpen(false);
-    toast({
-      title: "Success",
-      description: "Player updated successfully",
-    });
+    } catch (error) {
+      console.error('Error updating player:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update player",
+        variant: "destructive",
+      });
+    }
   };
 
   const handlePhotoUpload = async (playerId: string, file: File) => {
@@ -153,26 +215,21 @@ export const useGameManagement = (gameId: string) => {
         .from('player-photos')
         .getPublicUrl(filePath);
 
+      const { error: updateError } = await supabase
+        .from('players')
+        .update({ photo_url: publicUrl })
+        .eq('id', playerId);
+
+      if (updateError) throw updateError;
+
       setGame((prevGame) => {
         if (!prevGame) return null;
-        const updatedPlayers = prevGame.players.map((p) =>
-          p.id === playerId ? { ...p, photoUrl: publicUrl } : p
-        );
-        const updatedGame = {
+        return {
           ...prevGame,
-          players: updatedPlayers,
+          players: prevGame.players.map((p) =>
+            p.id === playerId ? { ...p, photoUrl: publicUrl } : p
+          )
         };
-
-        const gamesData = localStorage.getItem('games');
-        if (gamesData) {
-          const games = JSON.parse(gamesData);
-          const updatedGames = games.map((g: Game) => 
-            g.id === gameId ? updatedGame : g
-          );
-          localStorage.setItem('games', JSON.stringify(updatedGames));
-        }
-
-        return updatedGame;
       });
 
       toast({
