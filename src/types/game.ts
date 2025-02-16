@@ -5,6 +5,7 @@ export interface Player {
   photoUrl?: string;
   status: 'alive' | 'eliminated';
   gameId: string;
+  number: number;
 }
 
 export interface Game {

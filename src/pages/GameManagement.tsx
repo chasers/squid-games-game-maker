@@ -20,6 +20,7 @@ const GameManagement = () => {
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [editName, setEditName] = useState("");
   const [editStatus, setEditStatus] = useState<'alive' | 'eliminated'>('alive');
+  const [editNumber, setEditNumber] = useState<number>(0);
 
   useEffect(() => {
     const gamesData = localStorage.getItem('games');
@@ -39,6 +40,10 @@ const GameManagement = () => {
     }
   }, [gameId, navigate]);
 
+  const generateRandomNumber = () => {
+    return Math.floor(Math.random() * 455) + 1;
+  };
+
   const handleAddPlayer = () => {
     if (!newPlayerName.trim()) {
       toast({
@@ -54,6 +59,7 @@ const GameManagement = () => {
       name: newPlayerName,
       status: "alive",
       gameId: gameId!,
+      number: generateRandomNumber(),
     };
 
     setGame((prevGame) => {
@@ -93,11 +99,20 @@ const GameManagement = () => {
       return;
     }
 
+    if (editNumber < 1 || editNumber > 455) {
+      toast({
+        title: "Error",
+        description: "Number must be between 1 and 455",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setGame((prevGame) => {
       if (!prevGame) return null;
       const updatedPlayers = prevGame.players.map((p) =>
         p.id === selectedPlayer.id 
-          ? { ...p, name: editName, status: editStatus }
+          ? { ...p, name: editName, status: editStatus, number: editNumber }
           : p
       );
       const updatedGame = {
@@ -244,6 +259,9 @@ const GameManagement = () => {
                     }`}>
                       Status: {player.status}
                     </p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Player #{player.number}
+                    </p>
                   </div>
                   <Button
                     variant="ghost"
@@ -252,6 +270,7 @@ const GameManagement = () => {
                       setSelectedPlayer(player);
                       setEditName(player.name);
                       setEditStatus(player.status);
+                      setEditNumber(player.number);
                       setIsEditOpen(true);
                     }}
                   >
@@ -309,6 +328,20 @@ const GameManagement = () => {
                   <Skull className="h-4 w-4 mr-2" />
                   {editStatus === 'eliminated' ? 'Eliminated' : 'Alive'}
                 </Toggle>
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="playerNumber" className="text-sm font-medium">
+                  Player Number (1-455):
+                </label>
+                <Input
+                  id="playerNumber"
+                  type="number"
+                  min="1"
+                  max="455"
+                  value={editNumber}
+                  onChange={(e) => setEditNumber(Number(e.target.value))}
+                  className="input-focus"
+                />
               </div>
               <Button
                 onClick={handleEditPlayer}
