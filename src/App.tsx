@@ -6,6 +6,7 @@ import Dashboard from "@/pages/Dashboard";
 import GameManagement from "@/pages/GameManagement";
 import NotFound from "@/pages/NotFound";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
+import { Footer } from "@/components/Footer";
 import "./App.css";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -25,26 +26,29 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const App = () => {
   return (
     <AuthProvider>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/game/:gameId"
-          element={
-            <ProtectedRoute>
-              <GameManagement />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <div className="pb-16"> {/* Add padding to prevent content from being hidden behind footer */}
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/game/:gameId"
+            element={
+              <ProtectedRoute>
+                <GameManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
+      <Footer />
       <Toaster />
     </AuthProvider>
   );
