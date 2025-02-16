@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Plus } from "lucide-react";
@@ -9,6 +10,7 @@ import { Game } from "@/types/game";
 import { toast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [games, setGames] = useState<Game[]>([]);
   const [newGameName, setNewGameName] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -95,7 +97,7 @@ const Dashboard = () => {
                   <Button
                     variant="outline"
                     className="button-hover"
-                    onClick={() => {/* TODO: Implement game management */}}
+                    onClick={() => navigate(`/game/${game.id}`)}
                   >
                     Manage
                   </Button>
