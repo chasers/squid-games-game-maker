@@ -9,19 +9,48 @@ import { Input } from "@/components/ui/input";
 import { Game } from "@/types/game";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { session } = useAuth();
   const [games, setGames] = useState<Game[]>([]);
   const [newGameName, setNewGameName] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const gamesData = localStorage.getItem('games');
-    if (gamesData) {
-      setGames(JSON.parse(gamesData));
+    if (session) {
+      fetchGames();
     }
-  }, []);
+  }, [session]);
+
+  const fetchGames = async () => {
+    try {
+      const { data: gamesData, error } = await supabase
+        .from('games')
+        .select(`
+          *,
+          players (*)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      if (gamesData) {
+        setGames(gamesData as Game[]);
+      }
+    } catch (error) {
+      console.error('Error fetching games:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load games",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -36,8 +65,8 @@ const Dashboard = () => {
     }
   };
 
-  const createGame = () => {
-    if (!newGameName.trim()) {
+  const createGame = async () => {
+    if (!newGameName.trim() || !session?.user.id) {
       toast({
         title: "Error",
         description: "Please enter a game name",
@@ -46,25 +75,40 @@ const Dashboard = () => {
       return;
     }
 
-    const newGame: Game = {
-      id: Date.now().toString(),
-      name: newGameName,
-      createdAt: new Date().toISOString(),
-      ownerId: "user123", // TODO: Replace with actual user ID
-      status: "pending",
-      players: [],
-    };
+    try {
+      const { data: newGame, error } = await supabase
+        .from('games')
+        .insert([{
+          name: newGameName,
+          owner_id: session.user.id,
+        }])
+        .select()
+        .single();
 
-    const updatedGames = [...games, newGame];
-    setGames(updatedGames);
-    localStorage.setItem('games', JSON.stringify(updatedGames));
-    setNewGameName("");
-    setIsOpen(false);
-    toast({
-      title: "Success",
-      description: "Game created successfully",
-    });
+      if (error) throw error;
+
+      if (newGame) {
+        setGames((prevGames) => [...prevGames, { ...newGame, players: [] }]);
+        setNewGameName("");
+        setIsOpen(false);
+        toast({
+          title: "Success",
+          description: "Game created successfully",
+        });
+      }
+    } catch (error) {
+      console.error('Error creating game:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create game",
+        variant: "destructive",
+      });
+    }
   };
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary p-6">
