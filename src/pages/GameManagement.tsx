@@ -1,5 +1,6 @@
+
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { Player } from "@/types/game";
 import { toast } from "@/hooks/use-toast";
 import {
@@ -21,8 +22,7 @@ import {
 } from "@/components/ui/select";
 import { useGameManagement } from "@/hooks/use-game-management";
 import { PlayerCard } from "@/components/game/PlayerCard";
-import { Link } from "react-router-dom";
-import { FaTv, FaKey } from "react-icons/fa";
+import { FaTv, FaKey, FaArrowLeft } from "react-icons/fa";
 import { supabase } from "@/integrations/supabase/client";
 
 const GameManagement = () => {
@@ -71,7 +71,14 @@ const GameManagement = () => {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-4xl font-bold">{game.name}</h1>
+        <div className="flex items-center gap-4">
+          <Link to="/dashboard">
+            <Button variant="outline" size="icon">
+              <FaArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <h1 className="text-4xl font-bold">{game.name}</h1>
+        </div>
         <div className="flex gap-4">
           <Button onClick={() => setIsPasswordDialogOpen(true)} variant="outline">
             <FaKey className="mr-2 h-4 w-4" />
