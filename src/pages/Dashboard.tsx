@@ -1,14 +1,13 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Plus, LogOut } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Game } from "@/types/game";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { CreateGameDialog } from "@/components/dashboard/CreateGameDialog";
+import { GameCard } from "@/components/dashboard/GameCard";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -132,6 +131,10 @@ const Dashboard = () => {
     }
   };
 
+  const handleManageGame = (gameId: string) => {
+    navigate(`/game/${gameId}`);
+  };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
@@ -139,80 +142,27 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary p-6">
       <div className="max-w-6xl mx-auto space-y-8">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-squid-pink">My Games</h1>
-          <div className="flex gap-4">
-            <Dialog open={isOpen} onOpenChange={setIsOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-squid-pink hover:bg-squid-pink/90 button-hover">
-                  <Plus className="mr-2 h-4 w-4" />
-                  New Game
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Create New Game</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 pt-4">
-                  <Input
-                    placeholder="Game Name"
-                    value={newGameName}
-                    onChange={(e) => setNewGameName(e.target.value)}
-                    className="input-focus"
-                  />
-                  <Button
-                    onClick={createGame}
-                    className="w-full bg-squid-pink hover:bg-squid-pink/90 button-hover"
-                  >
-                    Create Game
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-            <Button
-              variant="outline"
-              onClick={handleLogout}
-              className="button-hover"
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
-            </Button>
-          </div>
-        </div>
+        <DashboardHeader
+          onOpenCreateGame={() => setIsOpen(true)}
+          onLogout={handleLogout}
+          isCreateGameOpen={isOpen}
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {games.map((game) => (
-            <Card
+            <GameCard
               key={game.id}
-              className="p-6 card-hover"
-            >
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-xl font-semibold">{game.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Created {new Date(game.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">
-                    {game.players.length} Players
-                  </span>
-                  <Button
-                    variant="outline"
-                    className="button-hover"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      navigate(`/game/${game.id}`);
-                    }}
-                  >
-                    Manage
-                  </Button>
-                </div>
-              </div>
-            </Card>
+              game={game}
+              onManage={handleManageGame}
+            />
           ))}
         </div>
+
+        <CreateGameDialog
+          newGameName={newGameName}
+          onNameChange={setNewGameName}
+          onCreateGame={createGame}
+        />
       </div>
     </div>
   );
