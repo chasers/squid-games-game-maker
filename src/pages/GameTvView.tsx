@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Player, Game } from "@/types/game";
@@ -175,23 +176,27 @@ const GameTvView = () => {
 
   return (
     <div className="min-h-screen bg-black p-8">
-      <div className="absolute top-4 left-4">
-        <SquidLogo />
-      </div>
-      <div className="mb-8 space-y-4 pt-16">
-        <h1 className="text-4xl font-bold text-white text-center">
-          {game?.name}
-        </h1>
-        <div className="flex justify-center">
-          <Button 
-            onClick={() => setIsJoinDialogOpen(true)}
-            className="bg-squid-pink hover:bg-squid-pink/90"
-          >
-            Join Game
-          </Button>
+      <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-squid-pink/20 to-transparent">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-between">
+            <SquidLogo />
+            <Button 
+              onClick={() => setIsJoinDialogOpen(true)}
+              className="bg-squid-pink hover:bg-squid-pink/90 shadow-lg shadow-squid-pink/20"
+            >
+              Join Game
+            </Button>
+          </div>
+          <div className="mt-8 text-center">
+            <h1 className="text-6xl font-bold text-white mb-2 tracking-tight">
+              {game?.name}
+            </h1>
+            <div className="h-1 w-32 bg-squid-pink mx-auto rounded-full opacity-50" />
+          </div>
         </div>
       </div>
-      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+
+      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-48">
         {players.map((player) => (
           <div
             key={player.id}
