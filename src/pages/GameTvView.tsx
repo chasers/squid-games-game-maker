@@ -1,38 +1,51 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Player } from "@/types/game";
+import { Player, Game } from "@/types/game";
 import { supabase } from "@/integrations/supabase/client";
 import { transformPlayerData } from "@/utils/player-utils";
 
 const GameTvView = () => {
   const { gameId } = useParams();
   const [players, setPlayers] = useState<Player[]>([]);
+  const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPlayers = async () => {
+    const fetchGameAndPlayers = async () => {
       try {
-        const { data: playersData, error } = await supabase
-          .from('players')
-          .select('*')
-          .eq('game_id', gameId)
-          .order('number', { ascending: true });
+        const [gameResponse, playersResponse] = await Promise.all([
+          supabase
+            .from('games')
+            .select('*')
+            .eq('id', gameId)
+            .single(),
+          supabase
+            .from('players')
+            .select('*')
+            .eq('game_id', gameId)
+            .order('number', { ascending: true })
+        ]);
 
-        if (error) throw error;
+        if (gameResponse.error) throw gameResponse.error;
+        if (playersResponse.error) throw playersResponse.error;
 
-        if (playersData) {
-          setPlayers(playersData.map(transformPlayerData));
+        if (gameResponse.data) {
+          setGame(gameResponse.data);
+        }
+
+        if (playersResponse.data) {
+          setPlayers(playersResponse.data.map(transformPlayerData));
         }
       } catch (error) {
-        console.error('Error fetching players:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
     };
 
     if (gameId) {
-      fetchPlayers();
+      fetchGameAndPlayers();
     }
   }, [gameId]);
 
@@ -42,6 +55,11 @@ const GameTvView = () => {
 
   return (
     <div className="min-h-screen bg-black p-8">
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-white text-center">
+          {game?.name}
+        </h1>
+      </div>
       <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {players.map((player) => (
           <div
