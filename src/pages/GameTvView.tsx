@@ -31,6 +31,7 @@ const GameTvView = () => {
   const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
   const [joinPassword, setJoinPassword] = useState("");
   const [playerName, setPlayerName] = useState("");
+  const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
 
   useEffect(() => {
     const fetchGameAndPlayers = async () => {
@@ -71,6 +72,42 @@ const GameTvView = () => {
     }
   }, [gameId]);
 
+  const handlePhotoUpload = async (playerId: string, file: File) => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${playerId}-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('player-photos')
+        .upload(filePath, file, {
+          upsert: true,
+          cacheControl: '3600'
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('player-photos')
+        .getPublicUrl(filePath);
+
+      const { data: updatedPlayer, error: updateError } = await supabase
+        .from('players')
+        .update({ photo_url: publicUrl })
+        .eq('id', playerId)
+        .select()
+        .single();
+
+      if (updateError) throw updateError;
+      
+      if (updatedPlayer) {
+        return transformPlayerData(updatedPlayer);
+      }
+    } catch (error) {
+      console.error('Photo upload error:', error);
+      throw error;
+    }
+  };
+
   const handleJoinGame = async () => {
     if (!game || !gameId) return;
 
@@ -98,11 +135,25 @@ const GameTvView = () => {
       if (error) throw error;
 
       if (newPlayer) {
-        const transformedPlayer = transformPlayerData(newPlayer);
-        setPlayers(prev => [...prev, transformedPlayer]);
+        let updatedPlayer = transformPlayerData(newPlayer);
+        
+        if (selectedPhoto) {
+          try {
+            updatedPlayer = await handlePhotoUpload(newPlayer.id, selectedPhoto);
+          } catch (uploadError) {
+            toast({
+              title: "Warning",
+              description: "Joined game but failed to upload photo",
+              variant: "destructive",
+            });
+          }
+        }
+
+        setPlayers(prev => [...prev, updatedPlayer]);
         setIsJoinDialogOpen(false);
         setJoinPassword("");
         setPlayerName("");
+        setSelectedPhoto(null);
         toast({
           title: "Success",
           description: "Successfully joined the game!",
@@ -196,6 +247,23 @@ const GameTvView = () => {
                 onChange={(e) => setJoinPassword(e.target.value)}
                 className="col-span-3"
                 placeholder="Enter game password"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="photo" className="text-right">
+                Photo
+              </Label>
+              <Input
+                id="photo"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setSelectedPhoto(file);
+                  }
+                }}
+                className="col-span-3"
               />
             </div>
           </div>
