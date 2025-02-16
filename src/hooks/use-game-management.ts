@@ -21,12 +21,10 @@ export const useGameManagement = (gameId: string) => {
         ...prevGame,
         players: prevGame.players.map((p) =>
           p.id === updatedPlayer.id ? updatedPlayer : p
-        )
+        ),
       };
     });
   };
-
-  const playerManagement = usePlayerManagement(gameId, handlePlayerUpdate);
 
   const fetchGame = async () => {
     if (!session) {
@@ -96,6 +94,9 @@ export const useGameManagement = (gameId: string) => {
       fetchGame();
     }
   }, [gameId, session]);
+
+  // Initialize player management with the actual gameId string
+  const playerManagement = usePlayerManagement(String(gameId), handlePlayerUpdate);
 
   return {
     game,

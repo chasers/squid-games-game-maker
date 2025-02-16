@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Player } from "@/types/game";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +15,16 @@ export const usePlayerManagement = (gameId: string, onPlayerUpdate: (updatedPlay
   const [editNumber, setEditNumber] = useState<number>(0);
 
   const handleAddPlayer = async () => {
+    if (!gameId) {
+      console.error('No game ID available');
+      toast({
+        title: "Error",
+        description: "Invalid game ID",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!newPlayerName.trim()) {
       toast({
         title: "Error",
@@ -26,7 +37,7 @@ export const usePlayerManagement = (gameId: string, onPlayerUpdate: (updatedPlay
     try {
       const playerData = {
         name: newPlayerName.trim(),
-        game_id: gameId,
+        game_id: String(gameId),
         number: generateRandomNumber(),
         status: 'alive' as const,
       };
