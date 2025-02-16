@@ -17,8 +17,15 @@ export const useGameManagement = (gameId: string) => {
   const [editName, setEditName] = useState("");
   const [editStatus, setEditStatus] = useState<'alive' | 'eliminated'>('alive');
   const [editNumber, setEditNumber] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
 
   const fetchGame = async () => {
+    if (!session) {
+      console.error('No session available');
+      navigate("/");
+      return;
+    }
+
     if (!gameId) {
       console.error('No game ID provided');
       toast({
@@ -31,6 +38,7 @@ export const useGameManagement = (gameId: string) => {
     }
 
     try {
+      setLoading(true);
       const { data: gameData, error } = await supabase
         .from('games')
         .select(`
@@ -77,6 +85,8 @@ export const useGameManagement = (gameId: string) => {
         variant: "destructive",
       });
       navigate("/dashboard");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -267,6 +277,7 @@ export const useGameManagement = (gameId: string) => {
 
   return {
     game,
+    loading,
     newPlayerName,
     setNewPlayerName,
     isAddOpen,
