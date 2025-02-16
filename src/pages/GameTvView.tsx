@@ -4,6 +4,12 @@ import { useParams } from "react-router-dom";
 import { Player, Game } from "@/types/game";
 import { supabase } from "@/integrations/supabase/client";
 import { transformPlayerData } from "@/utils/player-utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/hooks/use-toast";
+import { generateRandomNumber } from "@/utils/player-utils";
 
 const transformGameData = (gameData: any): Game => {
   return {
@@ -12,6 +18,7 @@ const transformGameData = (gameData: any): Game => {
     createdAt: gameData.created_at,
     ownerId: gameData.owner_id,
     status: gameData.status,
+    joinPassword: gameData.join_password,
     players: [] // Players will be set separately
   };
 };
@@ -21,6 +28,9 @@ const GameTvView = () => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
+  const [joinPassword, setJoinPassword] = useState("");
+  const [playerName, setPlayerName] = useState("");
 
   useEffect(() => {
     const fetchGameAndPlayers = async () => {
@@ -61,16 +71,71 @@ const GameTvView = () => {
     }
   }, [gameId]);
 
+  const handleJoinGame = async () => {
+    if (!game || !gameId) return;
+
+    if (game.joinPassword !== joinPassword) {
+      toast({
+        title: "Error",
+        description: "Incorrect password",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data: newPlayer, error } = await supabase
+        .from('players')
+        .insert([{
+          name: playerName,
+          game_id: gameId,
+          number: generateRandomNumber(),
+          status: 'alive'
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (newPlayer) {
+        const transformedPlayer = transformPlayerData(newPlayer);
+        setPlayers(prev => [...prev, transformedPlayer]);
+        setIsJoinDialogOpen(false);
+        setJoinPassword("");
+        setPlayerName("");
+        toast({
+          title: "Success",
+          description: "Successfully joined the game!",
+        });
+      }
+    } catch (error) {
+      console.error('Error joining game:', error);
+      toast({
+        title: "Error",
+        description: "Failed to join the game",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
 
   return (
     <div className="min-h-screen bg-black p-8">
-      <div className="mb-8">
+      <div className="mb-8 space-y-4">
         <h1 className="text-4xl font-bold text-white text-center">
           {game?.name}
         </h1>
+        <div className="flex justify-center">
+          <Button 
+            onClick={() => setIsJoinDialogOpen(true)}
+            className="bg-squid-pink hover:bg-squid-pink/90"
+          >
+            Join Game
+          </Button>
+        </div>
       </div>
       <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {players.map((player) => (
@@ -98,6 +163,47 @@ const GameTvView = () => {
           </div>
         ))}
       </div>
+
+      <Dialog open={isJoinDialogOpen} onOpenChange={setIsJoinDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Join Game</DialogTitle>
+            <DialogDescription>
+              Enter your name and the game password to join.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="name"
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+                className="col-span-3"
+                placeholder="Enter your name"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="joinPassword" className="text-right">
+                Password
+              </Label>
+              <Input
+                id="joinPassword"
+                type="password"
+                value={joinPassword}
+                onChange={(e) => setJoinPassword(e.target.value)}
+                className="col-span-3"
+                placeholder="Enter game password"
+              />
+            </div>
+          </div>
+          <Button onClick={handleJoinGame}>
+            Join Game
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

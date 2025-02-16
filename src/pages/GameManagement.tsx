@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Player } from "@/types/game";
@@ -23,12 +22,41 @@ import {
 import { useGameManagement } from "@/hooks/use-game-management";
 import { PlayerCard } from "@/components/game/PlayerCard";
 import { Link } from "react-router-dom";
-import { FaTv } from "react-icons/fa";
+import { FaTv, FaKey } from "react-icons/fa";
+import { supabase } from "@/integrations/supabase/client";
 
 const GameManagement = () => {
   const { gameId } = useParams();
   const { game, loading, ...playerManagement } = useGameManagement(gameId || '');
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [joinPassword, setJoinPassword] = useState("");
   const tvViewUrl = `/tv/game/${gameId}`;
+
+  const handleUpdatePassword = async () => {
+    if (!gameId) return;
+
+    try {
+      const { error } = await supabase
+        .from('games')
+        .update({ join_password: joinPassword })
+        .eq('id', gameId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Game password updated successfully",
+      });
+      setIsPasswordDialogOpen(false);
+    } catch (error) {
+      console.error('Error updating password:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update game password",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -45,6 +73,10 @@ const GameManagement = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-4xl font-bold">{game.name}</h1>
         <div className="flex gap-4">
+          <Button onClick={() => setIsPasswordDialogOpen(true)} variant="outline">
+            <FaKey className="mr-2 h-4 w-4" />
+            Set Join Password
+          </Button>
           <Link to={tvViewUrl} target="_blank">
             <Button variant="outline">
               <FaTv className="mr-2 h-4 w-4" />
@@ -153,6 +185,35 @@ const GameManagement = () => {
           </div>
           <Button onClick={playerManagement.handleEditPlayer}>
             Update
+          </Button>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Set Join Password</DialogTitle>
+            <DialogDescription>
+              Set a password that players will need to join the game from the TV view.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="password" className="text-right">
+                Password
+              </Label>
+              <Input
+                id="password"
+                type="text"
+                value={joinPassword}
+                onChange={(e) => setJoinPassword(e.target.value)}
+                className="col-span-3"
+                placeholder="Enter join password"
+              />
+            </div>
+          </div>
+          <Button onClick={handleUpdatePassword}>
+            Save Password
           </Button>
         </DialogContent>
       </Dialog>

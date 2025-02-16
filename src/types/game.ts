@@ -15,4 +15,5 @@ export interface Game {
   ownerId: string;
   status: 'pending' | 'in-progress' | 'completed';
   players: Player[];
+  joinPassword?: string;
 }
