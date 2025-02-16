@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Game, Player } from "@/types/game";
@@ -136,15 +135,17 @@ export const useGameManagement = (gameId: string) => {
   const handlePhotoUpload = async (playerId: string, file: File) => {
     try {
       const fileExt = file.name.split('.').pop();
-      const filePath = `${playerId}.${fileExt}`;
+      const filePath = `${playerId}-${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('player-photos')
         .upload(filePath, file, {
-          upsert: true
+          upsert: true,
+          cacheControl: '3600'
         });
 
       if (uploadError) {
+        console.error('Upload error:', uploadError);
         throw uploadError;
       }
 
@@ -179,6 +180,7 @@ export const useGameManagement = (gameId: string) => {
         description: "Photo uploaded successfully",
       });
     } catch (error) {
+      console.error('Photo upload error:', error);
       toast({
         title: "Error",
         description: "Failed to upload photo",
