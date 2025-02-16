@@ -146,19 +146,22 @@ export const usePlayerManagement = (gameId: string, onPlayerUpdate: (updatedPlay
         .from('player-photos')
         .getPublicUrl(filePath);
 
-      const { error: updateError } = await supabase
+      const { data: updatedPlayerData, error: updateError } = await supabase
         .from('players')
         .update({ photo_url: publicUrl })
-        .eq('id', playerId);
+        .eq('id', playerId)
+        .select()
+        .single();
 
       if (updateError) throw updateError;
 
-      onPlayerUpdate({ ...selectedPlayer!, photoUrl: publicUrl } as Player);
-
-      toast({
-        title: "Success",
-        description: "Photo uploaded successfully",
-      });
+      if (updatedPlayerData) {
+        onPlayerUpdate(transformPlayerData(updatedPlayerData));
+        toast({
+          title: "Success",
+          description: "Photo uploaded successfully",
+        });
+      }
     } catch (error) {
       console.error('Photo upload error:', error);
       toast({
