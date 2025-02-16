@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Game } from "@/types/game";
@@ -8,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { CreateGameDialog } from "@/components/dashboard/CreateGameDialog";
 import { GameCard } from "@/components/dashboard/GameCard";
+import { Dialog } from "@/components/ui/dialog";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -158,11 +158,13 @@ const Dashboard = () => {
           ))}
         </div>
 
-        <CreateGameDialog
-          newGameName={newGameName}
-          onNameChange={setNewGameName}
-          onCreateGame={createGame}
-        />
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <CreateGameDialog
+            newGameName={newGameName}
+            onNameChange={setNewGameName}
+            onCreateGame={createGame}
+          />
+        </Dialog>
       </div>
     </div>
   );
