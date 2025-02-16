@@ -3,11 +3,12 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Plus } from "lucide-react";
+import { Plus, LogOut } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Game } from "@/types/game";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -21,6 +22,19 @@ const Dashboard = () => {
       setGames(JSON.parse(gamesData));
     }
   }, []);
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to log out",
+        variant: "destructive",
+      });
+    } else {
+      navigate("/");
+    }
+  };
 
   const createGame = () => {
     if (!newGameName.trim()) {
@@ -57,33 +71,43 @@ const Dashboard = () => {
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-squid-pink">My Games</h1>
-          <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-squid-pink hover:bg-squid-pink/90 button-hover">
-                <Plus className="mr-2 h-4 w-4" />
-                New Game
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Game</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 pt-4">
-                <Input
-                  placeholder="Game Name"
-                  value={newGameName}
-                  onChange={(e) => setNewGameName(e.target.value)}
-                  className="input-focus"
-                />
-                <Button
-                  onClick={createGame}
-                  className="w-full bg-squid-pink hover:bg-squid-pink/90 button-hover"
-                >
-                  Create Game
+          <div className="flex gap-4">
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-squid-pink hover:bg-squid-pink/90 button-hover">
+                  <Plus className="mr-2 h-4 w-4" />
+                  New Game
                 </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New Game</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
+                  <Input
+                    placeholder="Game Name"
+                    value={newGameName}
+                    onChange={(e) => setNewGameName(e.target.value)}
+                    className="input-focus"
+                  />
+                  <Button
+                    onClick={createGame}
+                    className="w-full bg-squid-pink hover:bg-squid-pink/90 button-hover"
+                  >
+                    Create Game
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+            <Button
+              variant="outline"
+              onClick={handleLogout}
+              className="button-hover"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

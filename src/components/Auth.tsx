@@ -5,24 +5,51 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
-    // TODO: Implement actual auth logic
-    
-    toast({
-      title: isLogin ? "Welcome back!" : "Account created successfully!",
-      description: "You are now logged in.",
-    });
-    setLoading(false);
-    navigate("/dashboard");
+
+    try {
+      if (isLogin) {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        if (error) throw error;
+      }
+
+      toast({
+        title: isLogin ? "Welcome back!" : "Account created successfully!",
+        description: isLogin ? "You are now logged in." : "Please check your email to confirm your account.",
+      });
+      
+      if (isLogin) {
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -43,6 +70,8 @@ export const Auth = () => {
             <Input
               type="email"
               placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="input-focus"
               required
             />
@@ -51,6 +80,8 @@ export const Auth = () => {
             <Input
               type="password"
               placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="input-focus"
               required
             />
