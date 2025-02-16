@@ -1,197 +1,35 @@
-import { useState, useEffect } from "react";
+
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Toggle } from "@/components/ui/toggle";
-import { Game, Player } from "@/types/game";
-import { toast } from "@/hooks/use-toast";
-import { UserPlus, Pencil, Skull } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { UserPlus } from "lucide-react";
+import { useGameManagement } from "@/hooks/use-game-management";
+import { PlayerCard } from "@/components/game/PlayerCard";
+import { EditPlayerDialog } from "@/components/game/EditPlayerDialog";
+import { AddPlayerDialog } from "@/components/game/AddPlayerDialog";
 
 const GameManagement = () => {
   const { gameId } = useParams();
   const navigate = useNavigate();
-  const [game, setGame] = useState<Game | null>(null);
-  const [newPlayerName, setNewPlayerName] = useState("");
-  const [isAddOpen, setIsAddOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
-  const [editName, setEditName] = useState("");
-  const [editStatus, setEditStatus] = useState<'alive' | 'eliminated'>('alive');
-  const [editNumber, setEditNumber] = useState<number>(0);
-
-  useEffect(() => {
-    const gamesData = localStorage.getItem('games');
-    if (gamesData) {
-      const games = JSON.parse(gamesData);
-      const currentGame = games.find((g: Game) => g.id === gameId);
-      if (currentGame) {
-        setGame(currentGame);
-      } else {
-        toast({
-          title: "Error",
-          description: "Game not found",
-          variant: "destructive",
-        });
-        navigate("/dashboard");
-      }
-    }
-  }, [gameId, navigate]);
-
-  const generateRandomNumber = () => {
-    return Math.floor(Math.random() * 455) + 1;
-  };
-
-  const handleAddPlayer = () => {
-    if (!newPlayerName.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a player name",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const newPlayer: Player = {
-      id: Date.now().toString(),
-      name: newPlayerName,
-      status: "alive",
-      gameId: gameId!,
-      number: generateRandomNumber(),
-    };
-
-    setGame((prevGame) => {
-      if (!prevGame) return null;
-      const updatedGame = {
-        ...prevGame,
-        players: [...prevGame.players, newPlayer],
-      };
-
-      const gamesData = localStorage.getItem('games');
-      if (gamesData) {
-        const games = JSON.parse(gamesData);
-        const updatedGames = games.map((g: Game) => 
-          g.id === gameId ? updatedGame : g
-        );
-        localStorage.setItem('games', JSON.stringify(updatedGames));
-      }
-
-      return updatedGame;
-    });
-
-    setNewPlayerName("");
-    setIsAddOpen(false);
-    toast({
-      title: "Success",
-      description: "Player added successfully",
-    });
-  };
-
-  const handleEditPlayer = async () => {
-    if (!selectedPlayer || !editName.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a player name",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (editNumber < 1 || editNumber > 455) {
-      toast({
-        title: "Error",
-        description: "Number must be between 1 and 455",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setGame((prevGame) => {
-      if (!prevGame) return null;
-      const updatedPlayers = prevGame.players.map((p) =>
-        p.id === selectedPlayer.id 
-          ? { ...p, name: editName, status: editStatus, number: editNumber }
-          : p
-      );
-      const updatedGame = {
-        ...prevGame,
-        players: updatedPlayers,
-      };
-
-      const gamesData = localStorage.getItem('games');
-      if (gamesData) {
-        const games = JSON.parse(gamesData);
-        const updatedGames = games.map((g: Game) => 
-          g.id === gameId ? updatedGame : g
-        );
-        localStorage.setItem('games', JSON.stringify(updatedGames));
-      }
-
-      return updatedGame;
-    });
-
-    setIsEditOpen(false);
-    toast({
-      title: "Success",
-      description: "Player updated successfully",
-    });
-  };
-
-  const handlePhotoUpload = async (playerId: string, file: File) => {
-    try {
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${playerId}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('player-photos')
-        .upload(filePath, file, {
-          upsert: true
-        });
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('player-photos')
-        .getPublicUrl(filePath);
-
-      setGame((prevGame) => {
-        if (!prevGame) return null;
-        const updatedPlayers = prevGame.players.map((p) =>
-          p.id === playerId ? { ...p, photoUrl: publicUrl } : p
-        );
-        const updatedGame = {
-          ...prevGame,
-          players: updatedPlayers,
-        };
-
-        const gamesData = localStorage.getItem('games');
-        if (gamesData) {
-          const games = JSON.parse(gamesData);
-          const updatedGames = games.map((g: Game) => 
-            g.id === gameId ? updatedGame : g
-          );
-          localStorage.setItem('games', JSON.stringify(updatedGames));
-        }
-
-        return updatedGame;
-      });
-
-      toast({
-        title: "Success",
-        description: "Photo uploaded successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to upload photo",
-        variant: "destructive",
-      });
-    }
-  };
+  const {
+    game,
+    newPlayerName,
+    setNewPlayerName,
+    isAddOpen,
+    setIsAddOpen,
+    isEditOpen,
+    setIsEditOpen,
+    selectedPlayer,
+    setSelectedPlayer,
+    editName,
+    setEditName,
+    editStatus,
+    setEditStatus,
+    editNumber,
+    setEditNumber,
+    handleAddPlayer,
+    handleEditPlayer,
+    handlePhotoUpload,
+  } = useGameManagement(gameId!);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary p-6">
@@ -207,151 +45,51 @@ const GameManagement = () => {
             </Button>
             <h1 className="text-3xl font-bold text-squid-pink">{game?.name || "Game"}</h1>
           </div>
-          <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-squid-pink hover:bg-squid-pink/90 button-hover">
-                <UserPlus className="mr-2 h-4 w-4" />
-                Add Player
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add New Player</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 pt-4">
-                <Input
-                  placeholder="Player Name"
-                  value={newPlayerName}
-                  onChange={(e) => setNewPlayerName(e.target.value)}
-                  className="input-focus"
-                />
-                <Button
-                  onClick={handleAddPlayer}
-                  className="w-full bg-squid-pink hover:bg-squid-pink/90 button-hover"
-                >
-                  Add Player
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <Button 
+            className="bg-squid-pink hover:bg-squid-pink/90 button-hover"
+            onClick={() => setIsAddOpen(true)}
+          >
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add Player
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {game?.players.map((player) => (
-            <Card
+            <PlayerCard
               key={player.id}
-              className={`p-6 card-hover ${
-                player.status === 'eliminated' ? 'opacity-75' : ''
-              }`}
-            >
-              <div className="space-y-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className={`text-xl font-semibold ${
-                      player.status === 'eliminated' ? 'line-through' : ''
-                    }`}>
-                      {player.name}
-                    </h3>
-                    <p className={`text-sm ${
-                      player.status === 'eliminated' 
-                        ? 'text-red-500' 
-                        : 'text-green-500'
-                    }`}>
-                      Status: {player.status}
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Player #{player.number}
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      setSelectedPlayer(player);
-                      setEditName(player.name);
-                      setEditStatus(player.status);
-                      setEditNumber(player.number);
-                      setIsEditOpen(true);
-                    }}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div className="flex flex-col items-center space-y-2">
-                  {player.photoUrl && (
-                    <img
-                      src={player.photoUrl}
-                      alt={player.name}
-                      className={`w-20 h-20 rounded-full object-cover ${
-                        player.status === 'eliminated' ? 'grayscale' : ''
-                      }`}
-                    />
-                  )}
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    className="max-w-[200px]"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        handlePhotoUpload(player.id, file);
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-            </Card>
+              player={player}
+              onEdit={(player) => {
+                setSelectedPlayer(player);
+                setEditName(player.name);
+                setEditStatus(player.status);
+                setEditNumber(player.number);
+                setIsEditOpen(true);
+              }}
+              onPhotoUpload={handlePhotoUpload}
+            />
           ))}
         </div>
 
-        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit Player</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 pt-4">
-              <Input
-                placeholder="Player Name"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                className="input-focus"
-              />
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Player Status:</span>
-                <Toggle
-                  pressed={editStatus === 'eliminated'}
-                  onPressedChange={(pressed) => {
-                    setEditStatus(pressed ? 'eliminated' : 'alive');
-                  }}
-                  className="data-[state=on]:bg-red-500"
-                >
-                  <Skull className="h-4 w-4 mr-2" />
-                  {editStatus === 'eliminated' ? 'Eliminated' : 'Alive'}
-                </Toggle>
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="playerNumber" className="text-sm font-medium">
-                  Player Number (1-455):
-                </label>
-                <Input
-                  id="playerNumber"
-                  type="number"
-                  min="1"
-                  max="455"
-                  value={editNumber}
-                  onChange={(e) => setEditNumber(Number(e.target.value))}
-                  className="input-focus"
-                />
-              </div>
-              <Button
-                onClick={handleEditPlayer}
-                className="w-full bg-squid-pink hover:bg-squid-pink/90 button-hover"
-              >
-                Save Changes
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <AddPlayerDialog
+          isOpen={isAddOpen}
+          onOpenChange={setIsAddOpen}
+          newPlayerName={newPlayerName}
+          onNameChange={setNewPlayerName}
+          onAdd={handleAddPlayer}
+        />
+
+        <EditPlayerDialog
+          isOpen={isEditOpen}
+          onOpenChange={setIsEditOpen}
+          editName={editName}
+          onNameChange={setEditName}
+          editStatus={editStatus}
+          onStatusChange={setEditStatus}
+          editNumber={editNumber}
+          onNumberChange={setEditNumber}
+          onSave={handleEditPlayer}
+        />
       </div>
     </div>
   );
