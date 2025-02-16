@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Player, Game } from "@/types/game";
@@ -10,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { generateRandomNumber } from "@/utils/player-utils";
+import { SquidLogo } from "@/components/SquidLogo";
 
 const transformGameData = (gameData: any): Game => {
   return {
@@ -175,7 +175,10 @@ const GameTvView = () => {
 
   return (
     <div className="min-h-screen bg-black p-8">
-      <div className="mb-8 space-y-4">
+      <div className="absolute top-4 left-4">
+        <SquidLogo />
+      </div>
+      <div className="mb-8 space-y-4 pt-16">
         <h1 className="text-4xl font-bold text-white text-center">
           {game?.name}
         </h1>
