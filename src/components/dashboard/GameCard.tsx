@@ -1,7 +1,10 @@
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Game } from "@/types/game";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { format } from "date-fns";
+import { FaTv } from "react-icons/fa";
 
 interface GameCardProps {
   game: Game;
@@ -9,30 +12,40 @@ interface GameCardProps {
 }
 
 export const GameCard = ({ game, onManage }: GameCardProps) => {
+  const tvViewUrl = `/tv/game/${game.id}`;
+
   return (
-    <Card className="p-6 card-hover">
+    <Card className="p-6">
       <div className="space-y-4">
         <div>
-          <h3 className="text-xl font-semibold">{game.name}</h3>
+          <h3 className="text-2xl font-bold">{game.name}</h3>
           <p className="text-sm text-muted-foreground">
-            Created {new Date(game.createdAt).toLocaleDateString()}
+            Created on {format(new Date(game.createdAt), 'MMM d, yyyy')}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Status: {game.status}
           </p>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-sm">
-            {game.players.length} Players
-          </span>
-          <Button
-            variant="outline"
-            className="button-hover"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onManage(game.id);
-            }}
-          >
-            Manage
+
+        <div>
+          <p className="font-medium">
+            {game.players.length} Player{game.players.length !== 1 ? 's' : ''}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {game.players.filter(p => p.status === 'alive').length} Alive
+          </p>
+        </div>
+
+        <div className="flex gap-4">
+          <Button onClick={() => onManage(game.id)}>
+            Manage Game
           </Button>
+          <Link to={tvViewUrl} target="_blank">
+            <Button variant="outline">
+              <FaTv className="mr-2 h-4 w-4" />
+              TV View
+            </Button>
+          </Link>
         </div>
       </div>
     </Card>

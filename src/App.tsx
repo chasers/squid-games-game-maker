@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import Index from "@/pages/Index";
 import Dashboard from "@/pages/Dashboard";
 import GameManagement from "@/pages/GameManagement";
+import GameTvView from "@/pages/GameTvView";
 import NotFound from "@/pages/NotFound";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { Footer } from "@/components/Footer";
@@ -47,6 +48,7 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+            <Route path="/tv/game/:gameId" element={<GameTvView />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
