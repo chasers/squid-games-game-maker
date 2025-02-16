@@ -26,6 +26,9 @@ export const useGameManagement = (gameId: string) => {
     });
   };
 
+  // Initialize player management hook before useEffect to maintain hook order
+  const playerManagement = usePlayerManagement(gameId || '', handlePlayerUpdate);
+
   const fetchGame = async () => {
     if (!session) {
       console.error('No session available');
@@ -94,9 +97,6 @@ export const useGameManagement = (gameId: string) => {
       fetchGame();
     }
   }, [gameId, session]);
-
-  // Initialize player management with the actual gameId string
-  const playerManagement = usePlayerManagement(String(gameId), handlePlayerUpdate);
 
   return {
     game,

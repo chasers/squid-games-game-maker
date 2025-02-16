@@ -15,7 +15,7 @@ export const usePlayerManagement = (gameId: string, onPlayerUpdate: (updatedPlay
   const [editNumber, setEditNumber] = useState<number>(0);
 
   const handleAddPlayer = async () => {
-    if (!gameId) {
+    if (!gameId || gameId === '') {
       console.error('No game ID available');
       toast({
         title: "Error",
@@ -37,7 +37,7 @@ export const usePlayerManagement = (gameId: string, onPlayerUpdate: (updatedPlay
     try {
       const playerData = {
         name: newPlayerName.trim(),
-        game_id: String(gameId),
+        game_id: gameId,
         number: generateRandomNumber(),
         status: 'alive' as const,
       };
