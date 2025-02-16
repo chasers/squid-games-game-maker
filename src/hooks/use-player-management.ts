@@ -15,8 +15,8 @@ export const usePlayerManagement = (gameId: string, onPlayerUpdate: (updatedPlay
   const [editNumber, setEditNumber] = useState<number>(0);
 
   const handleAddPlayer = async () => {
-    if (!gameId || gameId === '') {
-      console.error('No game ID available');
+    if (!gameId) {
+      console.error('No game ID provided');
       toast({
         title: "Error",
         description: "Invalid game ID",

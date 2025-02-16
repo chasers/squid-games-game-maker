@@ -14,7 +14,8 @@ export const useGameManagement = (gameId: string) => {
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const handlePlayerUpdate = (updatedPlayer: Player) => {
+  // Initialize hook at the top level with the gameId
+  const playerManagement = usePlayerManagement(gameId, (updatedPlayer: Player) => {
     setGame((prevGame) => {
       if (!prevGame) return null;
       return {
@@ -24,10 +25,7 @@ export const useGameManagement = (gameId: string) => {
         ),
       };
     });
-  };
-
-  // Initialize player management hook before useEffect to maintain hook order
-  const playerManagement = usePlayerManagement(gameId || '', handlePlayerUpdate);
+  });
 
   const fetchGame = async () => {
     if (!session) {
