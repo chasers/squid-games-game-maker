@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Player } from "@/types/game";
@@ -8,18 +9,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -27,11 +20,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { useGameManagement } from "@/hooks/use-game-management";
 import { PlayerCard } from "@/components/game/PlayerCard";
 import { Link } from "react-router-dom";
-import { FaTv } from "react-icons/fa";
+import { FaTelevision } from "react-icons/fa6";
 
 const GameManagement = () => {
   const { gameId } = useParams();
@@ -55,7 +47,7 @@ const GameManagement = () => {
         <div className="flex gap-4">
           <Link to={tvViewUrl} target="_blank">
             <Button variant="outline">
-              <FaTv className="mr-2 h-4 w-4" />
+              <FaTelevision className="mr-2 h-4 w-4" />
               TV View
             </Button>
           </Link>
@@ -145,9 +137,12 @@ const GameManagement = () => {
               <Label htmlFor="status" className="text-right">
                 Status
               </Label>
-              <Select onValueChange={playerManagement.setEditStatus}>
+              <Select 
+                value={playerManagement.editStatus} 
+                onValueChange={(value: 'alive' | 'eliminated') => playerManagement.setEditStatus(value)}
+              >
                 <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Status" defaultValue={playerManagement.editStatus} />
+                  <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="alive">Alive</SelectItem>
