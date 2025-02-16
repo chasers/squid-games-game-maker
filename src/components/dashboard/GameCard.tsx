@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
-import { FaTelevision } from "react-icons/fa6";
+import { FaTv } from "react-icons/fa";
 
 interface GameCardProps {
   game: Game;
@@ -42,7 +42,7 @@ export const GameCard = ({ game, onManage }: GameCardProps) => {
           </Button>
           <Link to={tvViewUrl} target="_blank">
             <Button variant="outline">
-              <FaTelevision className="mr-2 h-4 w-4" />
+              <FaTv className="mr-2 h-4 w-4" />
               TV View
             </Button>
           </Link>

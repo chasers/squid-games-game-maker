@@ -23,7 +23,7 @@ import {
 import { useGameManagement } from "@/hooks/use-game-management";
 import { PlayerCard } from "@/components/game/PlayerCard";
 import { Link } from "react-router-dom";
-import { FaTelevision } from "react-icons/fa6";
+import { FaTv } from "react-icons/fa";
 
 const GameManagement = () => {
   const { gameId } = useParams();
@@ -47,7 +47,7 @@ const GameManagement = () => {
         <div className="flex gap-4">
           <Link to={tvViewUrl} target="_blank">
             <Button variant="outline">
-              <FaTelevision className="mr-2 h-4 w-4" />
+              <FaTv className="mr-2 h-4 w-4" />
               TV View
             </Button>
           </Link>
