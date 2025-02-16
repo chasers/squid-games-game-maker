@@ -1,5 +1,6 @@
 
-import { useNavigate, useParams, useEffect } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { UserPlus } from "lucide-react";
 import { useGameManagement } from "@/hooks/use-game-management";
