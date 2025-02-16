@@ -84,10 +84,10 @@ export const usePlayerManagement = (gameId: string, onPlayerUpdate: (updatedPlay
       return;
     }
 
-    if (editNumber < 1 || editNumber > 455) {
+    if (editNumber < 1 || editNumber > 456) {
       toast({
         title: "Error",
-        description: "Number must be between 1 and 455",
+        description: "Number must be between 1 and 456",
         variant: "destructive",
       });
       return;

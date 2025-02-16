@@ -56,13 +56,13 @@ export const EditPlayerDialog = ({
           </div>
           <div className="space-y-2">
             <label htmlFor="playerNumber" className="text-sm font-medium">
-              Player Number (1-455):
+              Player Number (1-456):
             </label>
             <Input
               id="playerNumber"
               type="number"
               min="1"
-              max="455"
+              max="456"
               value={editNumber}
               onChange={(e) => onNumberChange(Number(e.target.value))}
               className="input-focus"

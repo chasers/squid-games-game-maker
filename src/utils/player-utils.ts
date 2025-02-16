@@ -1,6 +1,6 @@
 
 export const generateRandomNumber = () => {
-  return Math.floor(Math.random() * 455) + 1;
+  return Math.floor(Math.random() * 456) + 1;
 };
 
 export const transformPlayerData = (player: any) => ({
