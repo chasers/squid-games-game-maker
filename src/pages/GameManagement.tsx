@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -15,6 +15,25 @@ const GameManagement = () => {
   const [game, setGame] = useState<Game | null>(null);
   const [newPlayerName, setNewPlayerName] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    // Get games from localStorage
+    const gamesData = localStorage.getItem('games');
+    if (gamesData) {
+      const games = JSON.parse(gamesData);
+      const currentGame = games.find((g: Game) => g.id === gameId);
+      if (currentGame) {
+        setGame(currentGame);
+      } else {
+        toast({
+          title: "Error",
+          description: "Game not found",
+          variant: "destructive",
+        });
+        navigate("/dashboard");
+      }
+    }
+  }, [gameId, navigate]);
 
   const handleAddPlayer = () => {
     if (!newPlayerName.trim()) {
@@ -33,12 +52,25 @@ const GameManagement = () => {
       gameId: gameId!,
     };
 
+    // Update local state
     setGame((prevGame) => {
       if (!prevGame) return null;
-      return {
+      const updatedGame = {
         ...prevGame,
         players: [...prevGame.players, newPlayer],
       };
+
+      // Update localStorage
+      const gamesData = localStorage.getItem('games');
+      if (gamesData) {
+        const games = JSON.parse(gamesData);
+        const updatedGames = games.map((g: Game) => 
+          g.id === gameId ? updatedGame : g
+        );
+        localStorage.setItem('games', JSON.stringify(updatedGames));
+      }
+
+      return updatedGame;
     });
 
     setNewPlayerName("");

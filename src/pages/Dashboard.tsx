@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -14,6 +14,13 @@ const Dashboard = () => {
   const [games, setGames] = useState<Game[]>([]);
   const [newGameName, setNewGameName] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const gamesData = localStorage.getItem('games');
+    if (gamesData) {
+      setGames(JSON.parse(gamesData));
+    }
+  }, []);
 
   const createGame = () => {
     if (!newGameName.trim()) {
@@ -34,7 +41,9 @@ const Dashboard = () => {
       players: [],
     };
 
-    setGames([...games, newGame]);
+    const updatedGames = [...games, newGame];
+    setGames(updatedGames);
+    localStorage.setItem('games', JSON.stringify(updatedGames));
     setNewGameName("");
     setIsOpen(false);
     toast({
