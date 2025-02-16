@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Game, Player } from "@/types/game";
@@ -60,7 +59,6 @@ export const useGameManagement = (gameId: string) => {
         return;
       }
 
-      // Transform the data to match our Game type
       const transformedGame: Game = {
         id: gameData.id,
         name: gameData.name,
@@ -101,6 +99,16 @@ export const useGameManagement = (gameId: string) => {
   };
 
   const handleAddPlayer = async () => {
+    if (!session) {
+      console.error('No session available for adding player');
+      toast({
+        title: "Error",
+        description: "You must be logged in to add players",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!newPlayerName.trim()) {
       toast({
         title: "Error",
@@ -111,17 +119,27 @@ export const useGameManagement = (gameId: string) => {
     }
 
     try {
+      console.log('Attempting to add player:', {
+        name: newPlayerName,
+        game_id: gameId,
+        number: generateRandomNumber(),
+      });
+
       const { data: newPlayer, error } = await supabase
         .from('players')
         .insert([{
-          name: newPlayerName,
+          name: newPlayerName.trim(),
           game_id: gameId,
           number: generateRandomNumber(),
+          status: 'alive' as const,
         }])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Detailed error adding player:', error);
+        throw error;
+      }
 
       if (newPlayer) {
         setGame((prevGame) => {
