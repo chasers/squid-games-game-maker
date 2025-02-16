@@ -7,12 +7,14 @@ interface DashboardHeaderProps {
   onOpenCreateGame: () => void;
   onLogout: () => void;
   isCreateGameOpen: boolean;
+  showGameControls?: boolean;
 }
 
 export const DashboardHeader = ({
   onOpenCreateGame,
   onLogout,
   isCreateGameOpen,
+  showGameControls = false,
 }: DashboardHeaderProps) => {
   return (
     <div className="flex flex-col space-y-4 mb-8">
@@ -24,17 +26,32 @@ export const DashboardHeader = ({
         </h1>
       </div>
       
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold text-foreground">My Games</h2>
-        <div className="flex gap-4">
-          <Dialog open={isCreateGameOpen} onOpenChange={onOpenCreateGame}>
-            <DialogTrigger asChild>
-              <Button className="bg-squid-pink hover:bg-squid-pink/90 button-hover">
-                <Plus className="mr-2 h-4 w-4" />
-                New Game
-              </Button>
-            </DialogTrigger>
-          </Dialog>
+      {showGameControls && (
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-semibold text-foreground">My Games</h2>
+          <div className="flex gap-4">
+            <Dialog open={isCreateGameOpen} onOpenChange={onOpenCreateGame}>
+              <DialogTrigger asChild>
+                <Button className="bg-squid-pink hover:bg-squid-pink/90 button-hover">
+                  <Plus className="mr-2 h-4 w-4" />
+                  New Game
+                </Button>
+              </DialogTrigger>
+            </Dialog>
+            <Button
+              variant="outline"
+              onClick={onLogout}
+              className="button-hover"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {!showGameControls && (
+        <div className="flex justify-end">
           <Button
             variant="outline"
             onClick={onLogout}
@@ -44,7 +61,7 @@ export const DashboardHeader = ({
             Logout
           </Button>
         </div>
-      </div>
+      )}
     </div>
   );
 };

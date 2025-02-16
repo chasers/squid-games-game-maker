@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Game } from "@/types/game";
@@ -7,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { CreateGameDialog } from "@/components/dashboard/CreateGameDialog";
 import { GameCard } from "@/components/dashboard/GameCard";
 import { Dialog } from "@/components/ui/dialog";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -140,6 +142,13 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-8">
+      <DashboardHeader
+        onOpenCreateGame={() => setIsOpen(true)}
+        onLogout={() => navigate("/")}
+        isCreateGameOpen={isOpen}
+        showGameControls={true}
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {games.map((game) => (
           <GameCard
