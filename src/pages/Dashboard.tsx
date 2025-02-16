@@ -4,7 +4,6 @@ import { Game } from "@/types/game";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { CreateGameDialog } from "@/components/dashboard/CreateGameDialog";
 import { GameCard } from "@/components/dashboard/GameCard";
 import { Dialog } from "@/components/ui/dialog";
@@ -140,32 +139,24 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary p-6">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <DashboardHeader
-          onOpenCreateGame={() => setIsOpen(true)}
-          onLogout={handleLogout}
-          isCreateGameOpen={isOpen}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {games.map((game) => (
-            <GameCard
-              key={game.id}
-              game={game}
-              onManage={handleManageGame}
-            />
-          ))}
-        </div>
-
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <CreateGameDialog
-            newGameName={newGameName}
-            onNameChange={setNewGameName}
-            onCreateGame={createGame}
+    <div className="space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {games.map((game) => (
+          <GameCard
+            key={game.id}
+            game={game}
+            onManage={handleManageGame}
           />
-        </Dialog>
+        ))}
       </div>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <CreateGameDialog
+          newGameName={newGameName}
+          onNameChange={setNewGameName}
+          onCreateGame={createGame}
+        />
+      </Dialog>
     </div>
   );
 };
