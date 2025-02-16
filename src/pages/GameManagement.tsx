@@ -8,8 +8,14 @@ import { EditPlayerDialog } from "@/components/game/EditPlayerDialog";
 import { AddPlayerDialog } from "@/components/game/AddPlayerDialog";
 
 const GameManagement = () => {
-  const { gameId } = useParams();
+  const { gameId } = useParams<{ gameId: string }>();
   const navigate = useNavigate();
+
+  if (!gameId) {
+    navigate("/dashboard");
+    return null;
+  }
+
   const {
     game,
     newPlayerName,
@@ -29,7 +35,7 @@ const GameManagement = () => {
     handleAddPlayer,
     handleEditPlayer,
     handlePhotoUpload,
-  } = useGameManagement(gameId!);
+  } = useGameManagement(gameId);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary p-6">
