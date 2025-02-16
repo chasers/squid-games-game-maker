@@ -1,5 +1,5 @@
 
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useEffect } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { UserPlus } from "lucide-react";
 import { useGameManagement } from "@/hooks/use-game-management";
@@ -11,10 +11,13 @@ const GameManagement = () => {
   const { gameId } = useParams<{ gameId: string }>();
   const navigate = useNavigate();
 
-  if (!gameId) {
-    navigate("/dashboard");
-    return null;
-  }
+  useEffect(() => {
+    if (!gameId) {
+      navigate("/dashboard");
+    }
+  }, [gameId, navigate]);
+
+  if (!gameId) return null;
 
   const {
     game,
