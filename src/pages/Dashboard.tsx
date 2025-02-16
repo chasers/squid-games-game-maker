@@ -200,7 +200,11 @@ const Dashboard = () => {
                   <Button
                     variant="outline"
                     className="button-hover"
-                    onClick={() => navigate(`/game/${game.id}`)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      navigate(`/game/${game.id}`);
+                    }}
                   >
                     Manage
                   </Button>
