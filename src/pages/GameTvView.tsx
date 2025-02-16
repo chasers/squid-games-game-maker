@@ -5,6 +5,17 @@ import { Player, Game } from "@/types/game";
 import { supabase } from "@/integrations/supabase/client";
 import { transformPlayerData } from "@/utils/player-utils";
 
+const transformGameData = (gameData: any): Game => {
+  return {
+    id: gameData.id,
+    name: gameData.name,
+    createdAt: gameData.created_at,
+    ownerId: gameData.owner_id,
+    status: gameData.status,
+    players: [] // Players will be set separately
+  };
+};
+
 const GameTvView = () => {
   const { gameId } = useParams();
   const [players, setPlayers] = useState<Player[]>([]);
@@ -31,7 +42,8 @@ const GameTvView = () => {
         if (playersResponse.error) throw playersResponse.error;
 
         if (gameResponse.data) {
-          setGame(gameResponse.data);
+          const transformedGame = transformGameData(gameResponse.data);
+          setGame(transformedGame);
         }
 
         if (playersResponse.data) {
