@@ -14,18 +14,33 @@ export const useGameManagement = (gameId: string) => {
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Initialize hook at the top level with the gameId
-  const playerManagement = usePlayerManagement(gameId, (updatedPlayer: Player) => {
+  const handlePlayerUpdate = (updatedPlayer: Player) => {
     setGame((prevGame) => {
       if (!prevGame) return null;
-      return {
-        ...prevGame,
-        players: prevGame.players.map((p) =>
-          p.id === updatedPlayer.id ? updatedPlayer : p
-        ),
-      };
+
+      // Check if the player already exists
+      const playerExists = prevGame.players.some(p => p.id === updatedPlayer.id);
+
+      if (playerExists) {
+        // Update existing player
+        return {
+          ...prevGame,
+          players: prevGame.players.map((p) =>
+            p.id === updatedPlayer.id ? updatedPlayer : p
+          ),
+        };
+      } else {
+        // Add new player
+        return {
+          ...prevGame,
+          players: [...prevGame.players, updatedPlayer],
+        };
+      }
     });
-  });
+  };
+
+  // Initialize hook with the gameId and updated handler
+  const playerManagement = usePlayerManagement(gameId, handlePlayerUpdate);
 
   const fetchGame = async () => {
     if (!session) {
