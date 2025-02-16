@@ -19,6 +19,17 @@ export const useGameManagement = (gameId: string) => {
   const [editNumber, setEditNumber] = useState<number>(0);
 
   const fetchGame = async () => {
+    if (!gameId) {
+      console.error('No game ID provided');
+      toast({
+        title: "Error",
+        description: "Invalid game ID",
+        variant: "destructive",
+      });
+      navigate("/dashboard");
+      return;
+    }
+
     try {
       const { data: gameData, error } = await supabase
         .from('games')
@@ -27,29 +38,37 @@ export const useGameManagement = (gameId: string) => {
           players (*)
         `)
         .eq('id', gameId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
-      if (gameData) {
-        // Transform the data to match our Game type
-        const transformedGame: Game = {
-          id: gameData.id,
-          name: gameData.name,
-          createdAt: gameData.created_at,
-          ownerId: gameData.owner_id,
-          status: gameData.status as 'pending' | 'in-progress' | 'completed',
-          players: gameData.players.map((p: any) => ({
-            id: p.id,
-            name: p.name,
-            status: p.status as 'alive' | 'eliminated',
-            gameId: p.game_id,
-            number: p.number,
-            photoUrl: p.photo_url
-          }))
-        };
-        setGame(transformedGame);
+      if (!gameData) {
+        toast({
+          title: "Error",
+          description: "Game not found",
+          variant: "destructive",
+        });
+        navigate("/dashboard");
+        return;
       }
+
+      // Transform the data to match our Game type
+      const transformedGame: Game = {
+        id: gameData.id,
+        name: gameData.name,
+        createdAt: gameData.created_at,
+        ownerId: gameData.owner_id,
+        status: gameData.status as 'pending' | 'in-progress' | 'completed',
+        players: gameData.players.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          status: p.status as 'alive' | 'eliminated',
+          gameId: p.game_id,
+          number: p.number,
+          photoUrl: p.photo_url
+        }))
+      };
+      setGame(transformedGame);
     } catch (error) {
       console.error('Error fetching game:', error);
       toast({
@@ -62,7 +81,7 @@ export const useGameManagement = (gameId: string) => {
   };
 
   useEffect(() => {
-    if (session) {
+    if (session && gameId) {
       fetchGame();
     }
   }, [gameId, session]);
