@@ -47,6 +47,24 @@ export type Database = {
           },
         ]
       }
+      health_checks: {
+        Row: {
+          alive: boolean
+          created_at: string
+          id: string
+        }
+        Insert: {
+          alive: boolean
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          alive?: boolean
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       players: {
         Row: {
           created_at: string

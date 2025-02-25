@@ -1,1 +1,3 @@
-project_id = "tqaongggjcfuhaupygjs"
+
+[functions.health-check]
+verify_jwt = false
