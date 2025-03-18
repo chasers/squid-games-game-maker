@@ -1,6 +1,5 @@
 
 import { useEffect, useState } from "react";
-import { DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CoinRainProps {
@@ -80,12 +79,24 @@ export const CoinRain = ({ isActive }: CoinRainProps) => {
             transform: `rotate(${coin.rotate}deg)`,
           }}
         >
-          <DollarSign 
-            className="text-amber-500 drop-shadow-lg" 
-            style={{ width: coin.size, height: coin.size }} 
-            strokeWidth={1.5} // Thinner stroke for a more golden appearance
-            fill="#FED7AA" // Light amber fill to make it more golden
-          />
+          <div
+            className="rounded-full bg-gradient-to-br from-yellow-300 to-amber-500 flex items-center justify-center shadow-lg"
+            style={{ 
+              width: coin.size, 
+              height: coin.size,
+              border: '2px solid #FFC107'
+            }}
+          >
+            <span 
+              className="text-amber-800 font-bold"
+              style={{ 
+                fontSize: `${coin.size * 0.5}px`,
+                textShadow: '0px 1px 2px rgba(0,0,0,0.1)'
+              }}
+            >
+              $
+            </span>
+          </div>
         </div>
       ))}
       
@@ -100,12 +111,24 @@ export const CoinRain = ({ isActive }: CoinRainProps) => {
             transform: `rotate(${coin.rotate}deg)`,
           }}
         >
-          <DollarSign 
-            className="text-amber-500 drop-shadow-lg" 
-            style={{ width: coin.size, height: coin.size }} 
-            strokeWidth={1.5}
-            fill="#FED7AA"
-          />
+          <div
+            className="rounded-full bg-gradient-to-br from-yellow-300 to-amber-500 flex items-center justify-center shadow-lg"
+            style={{ 
+              width: coin.size, 
+              height: coin.size,
+              border: '2px solid #FFC107'
+            }}
+          >
+            <span 
+              className="text-amber-800 font-bold"
+              style={{ 
+                fontSize: `${coin.size * 0.5}px`,
+                textShadow: '0px 1px 2px rgba(0,0,0,0.1)'
+              }}
+            >
+              $
+            </span>
+          </div>
         </div>
       ))}
     </div>
