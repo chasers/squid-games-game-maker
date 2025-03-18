@@ -16,13 +16,13 @@ export const CoinRain = ({ isActive }: CoinRainProps) => {
       return;
     }
 
-    // Create initial coins
+    // Create initial coins with larger sizes
     const initialCoins = Array.from({ length: 30 }, (_, i) => ({
       id: i,
       left: Math.random() * 100, // random position across width (%)
       speed: 3 + Math.random() * 4, // random speed
       rotate: Math.random() * 360, // random rotation
-      size: 16 + Math.random() * 24, // random size between 16-40px
+      size: 32 + Math.random() * 32, // random size between 32-64px (bigger than before)
     }));
 
     setCoins(initialCoins);
@@ -37,7 +37,7 @@ export const CoinRain = ({ isActive }: CoinRainProps) => {
             left: Math.random() * 100,
             speed: 3 + Math.random() * 4,
             rotate: Math.random() * 360,
-            size: 16 + Math.random() * 24,
+            size: 32 + Math.random() * 32, // random size between 32-64px (bigger than before)
           }
         ]);
       }
@@ -63,8 +63,9 @@ export const CoinRain = ({ isActive }: CoinRainProps) => {
           }}
         >
           <Coins 
-            className="text-yellow-400 drop-shadow-lg" 
+            className="text-amber-500 drop-shadow-lg" 
             style={{ width: coin.size, height: coin.size }} 
+            strokeWidth={1.5} // Thinner stroke for a more golden appearance
           />
         </div>
       ))}
