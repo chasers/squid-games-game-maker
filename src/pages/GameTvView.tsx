@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Player, Game } from "@/types/game";
@@ -11,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { generateRandomNumber } from "@/utils/player-utils";
 import { SquidLogo } from "@/components/SquidLogo";
+import { CoinRain } from "@/components/CoinRain";
 
 const transformGameData = (gameData: any): Game => {
   return {
@@ -33,6 +33,9 @@ const GameTvView = () => {
   const [joinPassword, setJoinPassword] = useState("");
   const [playerName, setPlayerName] = useState("");
   const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
+
+  const alivePlayers = players.filter(player => player.status === 'alive');
+  const showCoinRain = alivePlayers.length === 1;
 
   useEffect(() => {
     const fetchGameAndPlayers = async () => {
@@ -176,6 +179,8 @@ const GameTvView = () => {
 
   return (
     <div className="min-h-screen bg-black p-8">
+      <CoinRain isActive={showCoinRain} />
+
       <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-squid-pink/20 to-transparent">
         <div className="container mx-auto">
           <div className="flex items-center justify-between">
@@ -195,6 +200,19 @@ const GameTvView = () => {
           </div>
         </div>
       </div>
+
+      {showCoinRain && (
+        <div className="absolute top-1/4 left-0 right-0 text-center z-40">
+          <div className="animate-bounce">
+            <h2 className="text-8xl font-bold text-yellow-400 mb-4 drop-shadow-lg">
+              WINNER!
+            </h2>
+            <h3 className="text-4xl font-bold text-white">
+              {alivePlayers[0]?.name} #{alivePlayers[0]?.number}
+            </h3>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-48">
         {players.map((player) => (
