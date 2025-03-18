@@ -9,6 +9,14 @@
     animation-timing-function: linear;
     animation-iteration-count: infinite;
   }
+  
+  .animate-bounce-small {
+    animation-name: bounceSmall;
+    animation-duration: 3s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-delay: var(--delay, 0s);
+  }
 }
 
 @keyframes fall {
@@ -17,6 +25,15 @@
   }
   to {
     transform: translateY(calc(100vh + 100px)) rotate(360deg);
+  }
+}
+
+@keyframes bounceSmall {
+  0%, 100% {
+    transform: translateY(0) rotate(var(--rotate, 0deg));
+  }
+  50% {
+    transform: translateY(-5px) rotate(var(--rotate, 0deg));
   }
 }
  

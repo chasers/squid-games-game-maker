@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { Coins } from "lucide-react";
+import { DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CoinRainProps {
@@ -9,10 +9,12 @@ interface CoinRainProps {
 
 export const CoinRain = ({ isActive }: CoinRainProps) => {
   const [coins, setCoins] = useState<{ id: number; left: number; speed: number; rotate: number; size: number }[]>([]);
+  const [piledCoins, setPiledCoins] = useState<{ id: number; left: number; bottom: number; rotate: number; size: number }[]>([]);
 
   useEffect(() => {
     if (!isActive) {
       setCoins([]);
+      setPiledCoins([]);
       return;
     }
 
@@ -43,8 +45,24 @@ export const CoinRain = ({ isActive }: CoinRainProps) => {
       }
     }, 300);
 
+    // Create interval to add piled up coins at the bottom
+    const pileInterval = setInterval(() => {
+      if (isActive) {
+        const newCoin = {
+          id: Date.now() + 1000, // Make sure IDs are unique
+          left: Math.random() * 100,
+          bottom: Math.random() * 10, // Random height from bottom (0-10%)
+          rotate: Math.random() * 45 - 22.5, // Random rotation between -22.5 and 22.5 degrees
+          size: 32 + Math.random() * 32,
+        };
+        
+        setPiledCoins(prev => [...prev].concat(newCoin).slice(-100)); // Keep max 100 coins in the pile
+      }
+    }, 200);
+
     return () => {
       clearInterval(coinInterval);
+      clearInterval(pileInterval);
     };
   }, [isActive]);
 
@@ -62,10 +80,31 @@ export const CoinRain = ({ isActive }: CoinRainProps) => {
             transform: `rotate(${coin.rotate}deg)`,
           }}
         >
-          <Coins 
+          <DollarSign 
             className="text-amber-500 drop-shadow-lg" 
             style={{ width: coin.size, height: coin.size }} 
             strokeWidth={1.5} // Thinner stroke for a more golden appearance
+            fill="#FED7AA" // Light amber fill to make it more golden
+          />
+        </div>
+      ))}
+      
+      {/* Piled up coins at the bottom */}
+      {piledCoins.map((coin) => (
+        <div
+          key={coin.id}
+          className="absolute z-[51] animate-bounce-small"
+          style={{
+            left: `${coin.left}%`,
+            bottom: `${coin.bottom}%`,
+            transform: `rotate(${coin.rotate}deg)`,
+          }}
+        >
+          <DollarSign 
+            className="text-amber-500 drop-shadow-lg" 
+            style={{ width: coin.size, height: coin.size }} 
+            strokeWidth={1.5}
+            fill="#FED7AA"
           />
         </div>
       ))}
