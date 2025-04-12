@@ -61,17 +61,28 @@ const GameManagement = () => {
 
   // Handle opening the player edit dialog with proper cleanup
   const handleEditPlayer = (player: Player) => {
-    // Reset any lingering state first
+    // Close any open dialogs first to ensure clean state
     playerManagement.setIsEditOpen(false);
-    // Then set up the new player edit state
-    playerManagement.setSelectedPlayer(player);
-    playerManagement.setEditName(player.name);
-    playerManagement.setEditStatus(player.status);
-    playerManagement.setEditNumber(player.number);
-    // Finally open the dialog
+    
+    // Reset the state with the new player data after a microtask delay
     setTimeout(() => {
-      playerManagement.setIsEditOpen(true);
+      playerManagement.setSelectedPlayer(player);
+      playerManagement.setEditName(player.name);
+      playerManagement.setEditStatus(player.status);
+      playerManagement.setEditNumber(player.number);
+      
+      // Finally open the dialog in a clean state
+      setTimeout(() => {
+        playerManagement.setIsEditOpen(true);
+      }, 0);
     }, 0);
+  };
+
+  // Custom handler for player deletion to ensure proper cleanup
+  const handleDeletePlayer = () => {
+    playerManagement.handleDeletePlayer();
+    // Explicitly close the edit dialog after deletion
+    playerManagement.setIsEditOpen(false);
   };
 
   if (loading) {
@@ -162,7 +173,7 @@ const GameManagement = () => {
         editNumber={playerManagement.editNumber}
         onNumberChange={playerManagement.setEditNumber}
         onSave={playerManagement.handleEditPlayer}
-        onDelete={playerManagement.handleDeletePlayer}
+        onDelete={handleDeletePlayer} // Use our local handler with proper cleanup
       />
 
       <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>

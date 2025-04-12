@@ -55,7 +55,7 @@ export const EditPlayerDialog = ({
     setIsDeleteDialogOpen(false);
     // Then trigger the delete operation
     onDelete();
-    // Main dialog close is now handled internally by onDelete in GameManagement
+    // We'll handle dialog closing in the parent component
   };
 
   // Handle save changes with proper cleanup
