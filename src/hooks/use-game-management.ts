@@ -18,6 +18,14 @@ export const useGameManagement = (gameId: string) => {
     setGame((prevGame) => {
       if (!prevGame) return null;
 
+      // If player is marked as removed, filter it out instead of just updating the flag
+      if (updatedPlayer.removed) {
+        return {
+          ...prevGame,
+          players: prevGame.players.filter(p => p.id !== updatedPlayer.id),
+        };
+      }
+
       // Check if the player already exists
       const playerExists = prevGame.players.some(p => p.id === updatedPlayer.id);
 

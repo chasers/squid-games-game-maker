@@ -55,6 +55,8 @@ export const EditPlayerDialog = ({
     setIsDeleteDialogOpen(false);
     // Then trigger the delete operation
     onDelete();
+    // Ensure the main dialog closes as well
+    onOpenChange(false);
   };
 
   return (
