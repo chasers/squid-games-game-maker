@@ -150,7 +150,11 @@ export const usePlayerManagement = (gameId: string, onPlayerUpdate: (updatedPlay
       };
       
       onPlayerUpdate(deletedPlayer);
+      
+      // Important: Reset the selected player and close the dialog
+      setSelectedPlayer(null);
       setIsEditOpen(false);
+      
       toast({
         title: "Success",
         description: "Player deleted successfully",

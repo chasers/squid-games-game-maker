@@ -59,6 +59,15 @@ const GameManagement = () => {
     }
   };
 
+  // Handle opening the player edit dialog
+  const handleEditPlayer = (player: Player) => {
+    playerManagement.setSelectedPlayer(player);
+    playerManagement.setEditName(player.name);
+    playerManagement.setEditStatus(player.status);
+    playerManagement.setEditNumber(player.number);
+    playerManagement.setIsEditOpen(true);
+  };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
@@ -104,13 +113,7 @@ const GameManagement = () => {
             <PlayerCard
               key={player.id}
               player={player}
-              onEdit={(player) => {
-                playerManagement.setSelectedPlayer(player);
-                playerManagement.setEditName(player.name);
-                playerManagement.setEditStatus(player.status);
-                playerManagement.setEditNumber(player.number);
-                playerManagement.setIsEditOpen(true);
-              }}
+              onEdit={handleEditPlayer}
               onPhotoUpload={playerManagement.handlePhotoUpload}
             />
           ))}

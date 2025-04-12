@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface EditPlayerDialogProps {
   isOpen: boolean;
@@ -42,6 +42,20 @@ export const EditPlayerDialog = ({
   onDelete,
 }: EditPlayerDialogProps) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  
+  // Reset delete dialog state when the main dialog closes
+  useEffect(() => {
+    if (!isOpen) {
+      setIsDeleteDialogOpen(false);
+    }
+  }, [isOpen]);
+
+  const handleDelete = () => {
+    // Close the delete confirmation dialog first
+    setIsDeleteDialogOpen(false);
+    // Then trigger the delete operation
+    onDelete();
+  };
 
   return (
     <>
@@ -115,10 +129,7 @@ export const EditPlayerDialog = ({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
-                onDelete();
-                setIsDeleteDialogOpen(false);
-              }}
+              onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700"
             >
               Delete
