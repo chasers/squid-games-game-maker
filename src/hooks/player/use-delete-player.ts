@@ -35,10 +35,8 @@ export const useDeletePlayer = (
       // Update player state in parent components
       onPlayerUpdate(deletedPlayer);
       
-      // Call the completion callback to properly clean up all dialog state
-      setTimeout(() => {
-        onComplete();
-      }, 0);
+      // Immediately close dialogs before cleanup to prevent UI issues
+      onComplete();
       
       toast({
         title: "Success",

@@ -51,11 +51,14 @@ export const EditPlayerDialog = ({
   }, [isOpen]);
 
   const handleDelete = () => {
-    // Close the delete confirmation dialog first
+    // First close both dialogs to prevent UI issues
     setIsDeleteDialogOpen(false);
-    // Then trigger the delete operation
-    onDelete();
-    // We'll handle dialog closing in the parent component
+    onOpenChange(false);
+    
+    // Then trigger the delete operation (after dialogs are closed)
+    setTimeout(() => {
+      onDelete();
+    }, 10);
   };
 
   // Handle save changes with proper cleanup

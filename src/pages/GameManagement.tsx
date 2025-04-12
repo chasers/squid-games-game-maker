@@ -80,9 +80,21 @@ const GameManagement = () => {
 
   // Custom handler for player deletion to ensure proper cleanup
   const handleDeletePlayer = () => {
+    // First, ensure we don't try to reference the player after deletion
+    const playerId = playerManagement.selectedPlayer?.id;
+    
+    // Call delete operation which will execute the actual API call
     playerManagement.handleDeletePlayer();
-    // Explicitly close the edit dialog after deletion
+    
+    // Reset all component state after delete completes
+    playerManagement.setSelectedPlayer(null);
+    playerManagement.setEditName("");
+    playerManagement.setEditStatus("alive");
+    playerManagement.setEditNumber(1);
     playerManagement.setIsEditOpen(false);
+    
+    // Log to help with debugging
+    console.log(`Player ${playerId} deletion completed, dialog state reset`);
   };
 
   if (loading) {
