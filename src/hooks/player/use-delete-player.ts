@@ -32,9 +32,10 @@ export const useDeletePlayer = (
         removed: true, // This is a virtual property to signal removal
       };
       
+      // Update player state in parent components
       onPlayerUpdate(deletedPlayer);
       
-      // Notify parent components that delete is complete
+      // Call the completion callback to clean up dialog state
       onComplete();
       
       toast({

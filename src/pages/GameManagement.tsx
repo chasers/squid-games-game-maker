@@ -59,13 +59,19 @@ const GameManagement = () => {
     }
   };
 
-  // Handle opening the player edit dialog
+  // Handle opening the player edit dialog with proper cleanup
   const handleEditPlayer = (player: Player) => {
+    // Reset any lingering state first
+    playerManagement.setIsEditOpen(false);
+    // Then set up the new player edit state
     playerManagement.setSelectedPlayer(player);
     playerManagement.setEditName(player.name);
     playerManagement.setEditStatus(player.status);
     playerManagement.setEditNumber(player.number);
-    playerManagement.setIsEditOpen(true);
+    // Finally open the dialog
+    setTimeout(() => {
+      playerManagement.setIsEditOpen(true);
+    }, 0);
   };
 
   if (loading) {

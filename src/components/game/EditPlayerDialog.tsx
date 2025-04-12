@@ -55,8 +55,13 @@ export const EditPlayerDialog = ({
     setIsDeleteDialogOpen(false);
     // Then trigger the delete operation
     onDelete();
-    // Ensure the main dialog closes as well
-    onOpenChange(false);
+    // Main dialog close is now handled internally by onDelete in GameManagement
+  };
+
+  // Handle save changes with proper cleanup
+  const handleSave = () => {
+    onSave();
+    onOpenChange(false); // Explicitly close dialog after save
   };
 
   return (
@@ -102,7 +107,7 @@ export const EditPlayerDialog = ({
             </div>
             <div className="flex gap-2">
               <Button
-                onClick={onSave}
+                onClick={handleSave}
                 className="flex-1 bg-squid-pink hover:bg-squid-pink/90 button-hover"
               >
                 Save Changes
