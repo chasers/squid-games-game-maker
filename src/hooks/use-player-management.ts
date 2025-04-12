@@ -125,6 +125,46 @@ export const usePlayerManagement = (gameId: string, onPlayerUpdate: (updatedPlay
     }
   };
 
+  const handleDeletePlayer = async () => {
+    if (!selectedPlayer) {
+      toast({
+        title: "Error",
+        description: "No player selected",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('players')
+        .delete()
+        .eq('id', selectedPlayer.id);
+
+      if (error) throw error;
+
+      // Create a deleted player with the removed flag to update the UI
+      const deletedPlayer: Player = {
+        ...selectedPlayer,
+        removed: true, // This is a virtual property to signal removal
+      };
+      
+      onPlayerUpdate(deletedPlayer);
+      setIsEditOpen(false);
+      toast({
+        title: "Success",
+        description: "Player deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting player:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete player",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handlePhotoUpload = async (playerId: string, file: File) => {
     try {
       const fileExt = file.name.split('.').pop();
@@ -189,6 +229,7 @@ export const usePlayerManagement = (gameId: string, onPlayerUpdate: (updatedPlay
     setEditNumber,
     handleAddPlayer,
     handleEditPlayer,
+    handleDeletePlayer,
     handlePhotoUpload,
   };
 };

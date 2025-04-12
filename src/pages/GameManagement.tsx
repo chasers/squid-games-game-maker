@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { useGameManagement } from "@/hooks/use-game-management";
 import { PlayerCard } from "@/components/game/PlayerCard";
+import { EditPlayerDialog } from "@/components/game/EditPlayerDialog";
 import { FaTv, FaKey, FaArrowLeft } from "react-icons/fa";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -97,20 +98,22 @@ const GameManagement = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {game.players.map((player) => (
-          <PlayerCard
-            key={player.id}
-            player={player}
-            onEdit={(player) => {
-              playerManagement.setSelectedPlayer(player);
-              playerManagement.setEditName(player.name);
-              playerManagement.setEditStatus(player.status);
-              playerManagement.setEditNumber(player.number);
-              playerManagement.setIsEditOpen(true);
-            }}
-            onPhotoUpload={playerManagement.handlePhotoUpload}
-          />
-        ))}
+        {game.players
+          .filter(player => !player.removed) // Filter out removed players
+          .map((player) => (
+            <PlayerCard
+              key={player.id}
+              player={player}
+              onEdit={(player) => {
+                playerManagement.setSelectedPlayer(player);
+                playerManagement.setEditName(player.name);
+                playerManagement.setEditStatus(player.status);
+                playerManagement.setEditNumber(player.number);
+                playerManagement.setIsEditOpen(true);
+              }}
+              onPhotoUpload={playerManagement.handlePhotoUpload}
+            />
+          ))}
       </div>
 
       <Dialog open={playerManagement.isAddOpen} onOpenChange={playerManagement.setIsAddOpen}>
@@ -140,61 +143,18 @@ const GameManagement = () => {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={playerManagement.isEditOpen} onOpenChange={playerManagement.setIsEditOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Edit Player</DialogTitle>
-            <DialogDescription>
-              Edit the selected player.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Input
-                id="name"
-                value={playerManagement.editName}
-                onChange={(e) => playerManagement.setEditName(e.target.value)}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="number" className="text-right">
-                Number
-              </Label>
-              <Input
-                id="number"
-                type="number"
-                value={playerManagement.editNumber}
-                onChange={(e) => playerManagement.setEditNumber(Number(e.target.value))}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="status" className="text-right">
-                Status
-              </Label>
-              <Select 
-                value={playerManagement.editStatus} 
-                onValueChange={(value: 'alive' | 'eliminated') => playerManagement.setEditStatus(value)}
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="alive">Alive</SelectItem>
-                  <SelectItem value="eliminated">Eliminated</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <Button onClick={playerManagement.handleEditPlayer}>
-            Update
-          </Button>
-        </DialogContent>
-      </Dialog>
+      <EditPlayerDialog 
+        isOpen={playerManagement.isEditOpen}
+        onOpenChange={playerManagement.setIsEditOpen}
+        editName={playerManagement.editName}
+        onNameChange={playerManagement.setEditName}
+        editStatus={playerManagement.editStatus}
+        onStatusChange={playerManagement.setEditStatus}
+        editNumber={playerManagement.editNumber}
+        onNumberChange={playerManagement.setEditNumber}
+        onSave={playerManagement.handleEditPlayer}
+        onDelete={playerManagement.handleDeletePlayer}
+      />
 
       <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
