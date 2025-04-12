@@ -1,7 +1,8 @@
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface AddPlayerDialogProps {
   isOpen: boolean;
@@ -20,24 +21,29 @@ export const AddPlayerDialog = ({
 }: AddPlayerDialogProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Player</DialogTitle>
+          <DialogTitle>Add Player</DialogTitle>
+          <DialogDescription>
+            Add a new player to the game.
+          </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 pt-4">
-          <Input
-            placeholder="Player Name"
-            value={newPlayerName}
-            onChange={(e) => onNameChange(e.target.value)}
-            className="input-focus"
-          />
-          <Button
-            onClick={onAdd}
-            className="w-full bg-squid-pink hover:bg-squid-pink/90 button-hover"
-          >
-            Add Player
-          </Button>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="name" className="text-right">
+              Name
+            </Label>
+            <Input
+              id="name"
+              value={newPlayerName}
+              onChange={(e) => onNameChange(e.target.value)}
+              className="col-span-3"
+            />
+          </div>
         </div>
+        <Button onClick={onAdd}>
+          Add Player
+        </Button>
       </DialogContent>
     </Dialog>
   );
