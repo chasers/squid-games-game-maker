@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,14 +50,14 @@ export const EditPlayerDialog = ({
   }, [isOpen]);
 
   const handleDelete = () => {
-    // First close both dialogs to prevent UI issues
+    // Important: Close both dialogs first to avoid React event system issues
     setIsDeleteDialogOpen(false);
     onOpenChange(false);
     
-    // Then trigger the delete operation (after dialogs are closed)
-    setTimeout(() => {
+    // Schedule delete operation after current event cycle completes
+    requestAnimationFrame(() => {
       onDelete();
-    }, 10);
+    });
   };
 
   // Handle save changes with proper cleanup

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Player } from "@/types/game";
@@ -78,23 +77,31 @@ const GameManagement = () => {
     }, 0);
   };
 
-  // Custom handler for player deletion to ensure proper cleanup
+  // Completely revised delete handler with sync-then-async approach
   const handleDeletePlayer = () => {
-    // First, ensure we don't try to reference the player after deletion
+    // First, capture player ID for debugging
     const playerId = playerManagement.selectedPlayer?.id;
+    console.log(`Starting player ${playerId} deletion process`);
     
-    // Call delete operation which will execute the actual API call
-    playerManagement.handleDeletePlayer();
+    // CRITICAL: Reset selected player BEFORE triggering deletion process
+    // This ensures the component doesn't try to reference stale data
+    const playerToDelete = playerManagement.selectedPlayer;
     
-    // Reset all component state after delete completes
+    // 1. Reset all component state FIRST
     playerManagement.setSelectedPlayer(null);
     playerManagement.setEditName("");
     playerManagement.setEditStatus("alive");
     playerManagement.setEditNumber(1);
     playerManagement.setIsEditOpen(false);
     
-    // Log to help with debugging
-    console.log(`Player ${playerId} deletion completed, dialog state reset`);
+    // 2. Then schedule the actual delete operation to happen AFTER all state updates
+    if (playerToDelete) {
+      console.log(`Player ${playerId} state reset, now triggering API call`);
+      // Use requestAnimationFrame to ensure we're outside React's current event handling
+      requestAnimationFrame(() => {
+        playerManagement.handleDeletePlayer();
+      });
+    }
   };
 
   if (loading) {
@@ -185,7 +192,7 @@ const GameManagement = () => {
         editNumber={playerManagement.editNumber}
         onNumberChange={playerManagement.setEditNumber}
         onSave={playerManagement.handleEditPlayer}
-        onDelete={handleDeletePlayer} // Use our local handler with proper cleanup
+        onDelete={handleDeletePlayer} // Use our local handler with robust cleanup
       />
 
       <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>

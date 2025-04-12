@@ -19,6 +19,10 @@ export const useDeletePlayer = (
     }
 
     try {
+      // Call the completion callback FIRST to ensure UI cleanup happens
+      // before any async operations that might cause problems
+      onComplete();
+      
       const { error } = await supabase
         .from('players')
         .delete()
@@ -34,9 +38,6 @@ export const useDeletePlayer = (
       
       // Update player state in parent components
       onPlayerUpdate(deletedPlayer);
-      
-      // Immediately close dialogs before cleanup to prevent UI issues
-      onComplete();
       
       toast({
         title: "Success",
