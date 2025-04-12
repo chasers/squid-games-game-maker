@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Player, Game } from "@/types/game";
@@ -76,6 +77,53 @@ const GameTvView = () => {
     if (gameId) {
       fetchGameAndPlayers();
     }
+  }, [gameId]);
+
+  // Set up real-time subscription to player changes
+  useEffect(() => {
+    if (!gameId) return;
+
+    // Subscribe to changes in the players table for this game
+    const channel = supabase
+      .channel('players-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'players',
+          filter: `game_id=eq.${gameId}`
+        },
+        (payload) => {
+          console.log('Real-time update received:', payload);
+          
+          // Handle different types of changes
+          if (payload.eventType === 'INSERT') {
+            const newPlayer = transformPlayerData(payload.new);
+            setPlayers(current => [...current, newPlayer]);
+          } 
+          else if (payload.eventType === 'UPDATE') {
+            const updatedPlayer = transformPlayerData(payload.new);
+            setPlayers(current => 
+              current.map(player => 
+                player.id === updatedPlayer.id ? updatedPlayer : player
+              )
+            );
+          } 
+          else if (payload.eventType === 'DELETE') {
+            const deletedPlayerId = payload.old.id;
+            setPlayers(current => 
+              current.filter(player => player.id !== deletedPlayerId)
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    // Clean up subscription when component unmounts
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [gameId]);
 
   const handlePhotoUpload = async (playerId: string, file: File) => {
