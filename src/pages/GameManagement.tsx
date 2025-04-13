@@ -27,36 +27,26 @@ const GameManagement = () => {
       playerManagement.setEditNumber(player.number);
       
       // Finally open the dialog in a clean state
-      setTimeout(() => {
-        playerManagement.setIsEditOpen(true);
-      }, 0);
-    }, 0);
+      playerManagement.setIsEditOpen(true);
+    }, 10);
   };
 
-  // Delete handler with sync-then-async approach
+  // Delete handler with clean state approach
   const handleDeletePlayer = () => {
-    // First, capture player ID for debugging
-    const playerId = playerManagement.selectedPlayer?.id;
-    console.log(`Starting player ${playerId} deletion process`);
-    
-    // CRITICAL: Reset selected player BEFORE triggering deletion process
-    // This ensures the component doesn't try to reference stale data
+    // Store a reference to the player being deleted
     const playerToDelete = playerManagement.selectedPlayer;
     
-    // 1. Reset all component state FIRST
+    // 1. Reset all dialog state FIRST
     playerManagement.setSelectedPlayer(null);
     playerManagement.setEditName("");
     playerManagement.setEditStatus("alive");
     playerManagement.setEditNumber(1);
-    playerManagement.setIsEditOpen(false);
     
-    // 2. Then schedule the actual delete operation to happen AFTER all state updates
+    // 2. Then schedule the deletion to happen after state updates are processed
     if (playerToDelete) {
-      console.log(`Player ${playerId} state reset, now triggering API call`);
-      // Use requestAnimationFrame to ensure we're outside React's current event handling
-      requestAnimationFrame(() => {
+      setTimeout(() => {
         playerManagement.handleDeletePlayer();
-      });
+      }, 100);
     }
   };
 
@@ -103,7 +93,7 @@ const GameManagement = () => {
         editNumber={playerManagement.editNumber}
         onNumberChange={playerManagement.setEditNumber}
         onSave={playerManagement.handleEditPlayer}
-        onDelete={handleDeletePlayer} // Use our local handler with robust cleanup
+        onDelete={handleDeletePlayer} // Use our local handler with improved cleanup
       />
 
       <SetPasswordDialog 

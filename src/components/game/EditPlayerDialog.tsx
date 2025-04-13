@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,20 +51,20 @@ export const EditPlayerDialog = ({
   }, [isOpen]);
 
   const handleDelete = () => {
-    // Important: Close both dialogs first to avoid React event system issues
+    // Close both dialogs BEFORE triggering delete operation
     setIsDeleteDialogOpen(false);
     onOpenChange(false);
     
-    // Schedule delete operation after current event cycle completes
-    requestAnimationFrame(() => {
+    // Allow the UI to update before running the delete operation
+    setTimeout(() => {
       onDelete();
-    });
+    }, 100);
   };
 
   // Handle save changes with proper cleanup
   const handleSave = () => {
     onSave();
-    onOpenChange(false); // Explicitly close dialog after save
+    onOpenChange(false); // Close dialog after save
   };
 
   return (

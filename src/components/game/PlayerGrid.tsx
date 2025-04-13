@@ -13,6 +13,7 @@ export const PlayerGrid = ({
   onEditPlayer,
   onPhotoUpload,
 }: PlayerGridProps) => {
+  // Make sure we only render players that haven't been removed
   const activePlayers = players.filter(player => !player.removed);
   
   return (
