@@ -36,6 +36,18 @@ export const PlayerCard = ({ player, onEdit, onPhotoUpload }: PlayerCardProps) =
             <p className="text-sm text-muted-foreground mt-1">
               Player #{player.number}
             </p>
+            <div className="flex items-center mt-1 space-x-1">
+              <span className="text-sm text-muted-foreground">Losses:</span>
+              <div className="flex space-x-1">
+                {[...Array(player.losses || 0)].map((_, index) => (
+                  <div 
+                    key={index} 
+                    className="w-2 h-2 bg-red-500 rounded-full"
+                  />
+                ))}
+                {player.losses === 0 && <span className="text-sm text-muted-foreground">0</span>}
+              </div>
+            </div>
           </div>
           <Button
             variant="ghost"
