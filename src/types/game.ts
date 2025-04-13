@@ -6,7 +6,8 @@ export interface Player {
   status: 'alive' | 'eliminated';
   gameId: string;
   number: number;
-  removed?: boolean; // Virtual property to track removed players
+  removed?: boolean;
+  losses: number; // Added losses field
 }
 
 export interface Game {

@@ -70,6 +70,7 @@ export type Database = {
           created_at: string
           game_id: string
           id: string
+          losses: number
           name: string
           number: number
           photo_url: string | null
@@ -80,6 +81,7 @@ export type Database = {
           created_at?: string
           game_id: string
           id?: string
+          losses?: number
           name: string
           number: number
           photo_url?: string | null
@@ -90,6 +92,7 @@ export type Database = {
           created_at?: string
           game_id?: string
           id?: string
+          losses?: number
           name?: string
           number?: number
           photo_url?: string | null

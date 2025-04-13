@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 
 interface EditPlayerDialogProps {
@@ -40,10 +40,14 @@ export const EditPlayerDialog = ({
   onNumberChange,
   onSave,
   onDelete,
-}: EditPlayerDialogProps) => {
+  editLosses,
+  onLossesChange,
+}: EditPlayerDialogProps & {
+  editLosses: number;
+  onLossesChange: (losses: number) => void;
+}) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
-  // Reset delete dialog state when the main dialog closes
   useEffect(() => {
     if (!isOpen) {
       setIsDeleteDialogOpen(false);
@@ -51,20 +55,16 @@ export const EditPlayerDialog = ({
   }, [isOpen]);
 
   const handleDelete = () => {
-    // Close both dialogs BEFORE triggering delete operation
     setIsDeleteDialogOpen(false);
     onOpenChange(false);
-    
-    // We need a longer timeout to ensure UI is completely updated
     setTimeout(() => {
       onDelete();
     }, 200);
   };
 
-  // Handle save changes with proper cleanup
   const handleSave = () => {
     onSave();
-    onOpenChange(false); // Close dialog after save
+    onOpenChange(false);
   };
 
   return (
@@ -107,6 +107,26 @@ export const EditPlayerDialog = ({
                 onChange={(e) => onNumberChange(Number(e.target.value))}
                 className="input-focus"
               />
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Losses:</span>
+              <div className="flex items-center space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => onLossesChange(Math.max(0, editLosses - 1))}
+                >
+                  -
+                </Button>
+                <Badge variant="secondary">{editLosses}</Badge>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => onLossesChange(editLosses + 1)}
+                >
+                  +
+                </Button>
+              </div>
             </div>
             <div className="flex gap-2">
               <Button

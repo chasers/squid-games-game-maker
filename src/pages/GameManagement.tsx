@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Player } from "@/types/game";
@@ -14,35 +13,25 @@ const GameManagement = () => {
   const { game, loading, ...playerManagement } = useGameManagement(gameId || '');
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
 
-  // Handle opening the player edit dialog with proper cleanup
   const handleEditPlayer = (player: Player) => {
-    // Close any open dialogs first to ensure clean state
+    playerManagement.setEditLosses(player.losses || 0);
     playerManagement.setIsEditOpen(false);
-    
-    // Reset the state with the new player data after a microtask delay
     setTimeout(() => {
       playerManagement.setSelectedPlayer(player);
       playerManagement.setEditName(player.name);
       playerManagement.setEditStatus(player.status);
       playerManagement.setEditNumber(player.number);
-      
-      // Finally open the dialog in a clean state
+      playerManagement.setEditLosses(player.losses || 0);
       playerManagement.setIsEditOpen(true);
     }, 10);
   };
 
-  // Delete handler with clean state approach
   const handleDeletePlayer = () => {
-    // Store a reference to the player being deleted
     const playerToDelete = playerManagement.selectedPlayer;
-    
-    // 1. Reset all dialog state FIRST
     playerManagement.setSelectedPlayer(null);
     playerManagement.setEditName("");
     playerManagement.setEditStatus("alive");
     playerManagement.setEditNumber(1);
-    
-    // 2. Then schedule the deletion to happen after state updates are processed
     if (playerToDelete) {
       setTimeout(() => {
         playerManagement.handleDeletePlayer();
@@ -92,6 +81,8 @@ const GameManagement = () => {
         onStatusChange={playerManagement.setEditStatus}
         editNumber={playerManagement.editNumber}
         onNumberChange={playerManagement.setEditNumber}
+        editLosses={playerManagement.editLosses}
+        onLossesChange={playerManagement.setEditLosses}
         onSave={playerManagement.handleEditPlayer}
         onDelete={handleDeletePlayer}
       />

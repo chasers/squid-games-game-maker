@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Player } from "@/types/game";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +10,7 @@ export const useEditPlayer = (onPlayerUpdate: (updatedPlayer: Player) => void) =
   const [editName, setEditName] = useState("");
   const [editStatus, setEditStatus] = useState<'alive' | 'eliminated'>('alive');
   const [editNumber, setEditNumber] = useState<number>(0);
+  const [editLosses, setEditLosses] = useState(0);
 
   const handleEditPlayer = async () => {
     if (!selectedPlayer || !editName.trim()) {
@@ -37,7 +37,8 @@ export const useEditPlayer = (onPlayerUpdate: (updatedPlayer: Player) => void) =
         .update({
           name: editName,
           status: editStatus,
-          number: editNumber
+          number: editNumber,
+          losses: editLosses
         })
         .eq('id', selectedPlayer.id)
         .select()
@@ -74,6 +75,8 @@ export const useEditPlayer = (onPlayerUpdate: (updatedPlayer: Player) => void) =
     setEditStatus,
     editNumber, 
     setEditNumber,
+    editLosses,
+    setEditLosses,
     handleEditPlayer,
   };
 };
