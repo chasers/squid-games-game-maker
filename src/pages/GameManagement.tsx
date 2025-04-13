@@ -93,7 +93,7 @@ const GameManagement = () => {
         editNumber={playerManagement.editNumber}
         onNumberChange={playerManagement.setEditNumber}
         onSave={playerManagement.handleEditPlayer}
-        onDelete={handleDeletePlayer} // Use our local handler with improved cleanup
+        onDelete={handleDeletePlayer}
       />
 
       <SetPasswordDialog 

@@ -23,21 +23,22 @@ export const useDeletePlayer = (
       // before any async operations that might cause problems
       onComplete();
       
-      const { error } = await supabase
-        .from('players')
-        .delete()
-        .eq('id', selectedPlayer.id);
-
-      if (error) throw error;
-
       // Create a deleted player with the removed flag to update the UI
       const deletedPlayer: Player = {
         ...selectedPlayer,
         removed: true, // This is a virtual property to signal removal
       };
       
-      // Update player state in parent components
+      // Update player state in parent components immediately
       onPlayerUpdate(deletedPlayer);
+      
+      // Then perform the actual database deletion
+      const { error } = await supabase
+        .from('players')
+        .delete()
+        .eq('id', selectedPlayer.id);
+
+      if (error) throw error;
       
       toast({
         title: "Success",

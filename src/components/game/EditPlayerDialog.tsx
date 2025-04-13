@@ -55,10 +55,10 @@ export const EditPlayerDialog = ({
     setIsDeleteDialogOpen(false);
     onOpenChange(false);
     
-    // Allow the UI to update before running the delete operation
+    // We need a longer timeout to ensure UI is completely updated
     setTimeout(() => {
       onDelete();
-    }, 100);
+    }, 200);
   };
 
   // Handle save changes with proper cleanup
