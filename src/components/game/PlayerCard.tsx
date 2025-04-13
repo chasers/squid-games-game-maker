@@ -5,6 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Pencil } from "lucide-react";
 
+// Utility function to pad player number with leading zeros
+const formatPlayerNumber = (number: number): string => {
+  return number.toString().padStart(3, '0');
+};
+
 interface PlayerCardProps {
   player: Player;
   onEdit: (player: Player) => void;
@@ -34,7 +39,7 @@ export const PlayerCard = ({ player, onEdit, onPhotoUpload }: PlayerCardProps) =
               Status: {player.status}
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              Player #{player.number}
+              Player #{formatPlayerNumber(player.number)}
             </p>
             <div className="flex items-center mt-1 space-x-1">
               <span className="text-sm text-muted-foreground">Losses:</span>
