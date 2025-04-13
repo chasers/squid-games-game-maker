@@ -28,8 +28,8 @@ export const PlayerTile: React.FC<PlayerTileProps> = ({ player }) => {
         <div className="text-lg font-bold">{player.number}</div>
         <div className="text-sm truncate">{player.name}</div>
       </div>
-      {/* Add losses dots */}
-      <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex space-x-1">
+      {/* Left-justify loss dots */}
+      <div className="absolute bottom-1 left-1 flex space-x-1">
         {[...Array(player.losses)].map((_, index) => (
           <div 
             key={index} 
