@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Game } from "@/types/game";
@@ -49,7 +48,8 @@ const Dashboard = () => {
             status: p.status as 'alive' | 'eliminated',
             gameId: p.game_id,
             number: p.number,
-            photoUrl: p.photo_url
+            photoUrl: p.photo_url,
+            losses: p.losses || 0
           }))
         }));
         setGames(transformedGames);

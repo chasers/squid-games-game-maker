@@ -39,6 +39,8 @@ export const usePlayerManagement = (gameId: string, onPlayerUpdate: (updatedPlay
     setEditStatus: editPlayerHook.setEditStatus,
     editNumber: editPlayerHook.editNumber,
     setEditNumber: editPlayerHook.setEditNumber,
+    editLosses: editPlayerHook.editLosses,
+    setEditLosses: editPlayerHook.setEditLosses,
     handleEditPlayer: editPlayerHook.handleEditPlayer,
     
     // Delete player functionality

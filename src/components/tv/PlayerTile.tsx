@@ -1,4 +1,11 @@
 
+import React from "react";
+import { Player } from "@/types/game";
+
+interface PlayerTileProps {
+  player: Player;
+}
+
 export const PlayerTile: React.FC<PlayerTileProps> = ({ player }) => {
   return (
     <div

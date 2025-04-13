@@ -1,4 +1,9 @@
 
+// Function to generate a random player number between 1 and 456
+export const generateRandomNumber = (): number => {
+  return Math.floor(Math.random() * 456) + 1; // Random number between 1 and 456
+};
+
 export const transformPlayerData = (player: any) => ({
   id: player.id,
   name: player.name,
